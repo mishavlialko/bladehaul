@@ -43,12 +43,12 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-navy text-white/70">
+    <footer className="border-t border-line bg-white text-text-dim">
       <Container className="py-16 sm:py-20">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <Logo size="xl" />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/60">
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-dim">
               The Sharpest Way to Ship Your Car.
             </p>
             <div className="mt-6 flex gap-3">
@@ -57,7 +57,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BladeHaul on Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/70 transition-colors hover:border-white/30 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BladeHaul on TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 text-white/70 transition-colors hover:border-white/30 hover:text-white"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export default function Footer() {
 
           {columns.map((col) => (
             <nav key={col.heading} aria-label={col.heading}>
-              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-white">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-text">
                 {col.heading}
               </h2>
               <ul className="mt-4 space-y-3">
@@ -106,7 +106,7 @@ export default function Footer() {
                       {...(link.external
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
+                      className="text-sm text-text-dim transition-colors hover:text-text"
                     >
                       {link.label}
                     </Link>
@@ -117,12 +117,12 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-16 border-t border-white/10 pt-8">
-          <div className="flex flex-col gap-4 text-xs text-white/50 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-16 border-t border-line pt-8">
+          <div className="flex flex-col gap-4 text-xs text-text-faint sm:flex-row sm:items-center sm:justify-between">
             <p>© {year} BladeHaul Auto Transport LLC.</p>
             <a
               href="mailto:info@bladehaul.com"
-              className="text-white/70 transition-colors hover:text-white"
+              className="text-text-dim transition-colors hover:text-text"
             >
               info@bladehaul.com
             </a>

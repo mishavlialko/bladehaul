@@ -32,43 +32,43 @@ const pairs: Pair[] = [
 
 export default function Comparison() {
   return (
-    <section className="bg-white text-text">
+    <section className="bg-navy text-white">
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
             How we&apos;re different
           </h2>
-          <p className="mt-5 text-lg text-text-dim">
+          <p className="mt-5 text-lg text-white/65">
             Here&apos;s what actually happens after you book.
           </p>
         </div>
 
         <div className="mt-14 grid gap-x-12 sm:grid-cols-2 lg:mt-20">
-          <p className="hidden border-b border-line pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-text-faint sm:block">
+          <p className="hidden border-b border-white/10 pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45 sm:block">
             Other brokers
           </p>
-          <p className="hidden border-b border-line pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange sm:block">
+          <p className="hidden border-b border-white/10 pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange sm:block">
             BladeHaul
           </p>
 
           {pairs.map((pair, idx) => (
             <Fragment key={idx}>
-              <div className="flex items-start gap-3 border-b border-line py-6">
+              <div className="flex items-start gap-3 border-b border-white/10 py-6">
                 <X
                   aria-hidden="true"
                   strokeWidth={1.75}
-                  className="mt-0.5 h-5 w-5 shrink-0 text-text-faint"
+                  className="mt-0.5 h-5 w-5 shrink-0 text-white/40"
                 />
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-faint sm:sr-only">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45 sm:sr-only">
                     Other brokers
                   </span>
-                  <p className="text-base leading-relaxed text-text-dim sm:text-[17px]">
+                  <p className="text-base leading-relaxed text-white/60 sm:text-[17px]">
                     {pair.bad}
                   </p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 border-b border-line py-6">
+              <div className="flex items-start gap-3 border-b border-white/10 py-6">
                 <Check
                   aria-hidden="true"
                   strokeWidth={2}
@@ -78,7 +78,7 @@ export default function Comparison() {
                   <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange sm:sr-only">
                     BladeHaul
                   </span>
-                  <p className="text-base font-medium leading-relaxed text-text sm:text-[17px]">
+                  <p className="text-base font-medium leading-relaxed text-white sm:text-[17px]">
                     {pair.good}
                   </p>
                 </div>

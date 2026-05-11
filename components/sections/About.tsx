@@ -10,14 +10,14 @@ export default function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-20 bg-white text-text sm:scroll-mt-24"
+      className="scroll-mt-64 bg-navy text-white sm:scroll-mt-72"
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
             Built by someone who actually does this
           </h2>
-          <div className="mt-8 space-y-5 text-lg leading-relaxed text-text-dim">
+          <div className="mt-8 space-y-5 text-lg leading-relaxed text-white/65">
             <p>
               BladeHaul is run by Mykhailo. Before starting this company I spent
               five years dispatching over 1,000 car shipments.
@@ -30,15 +30,15 @@ export default function About() {
             <p>That&apos;s why I built BladeHaul. To do it differently.</p>
           </div>
 
-          <ul className="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 border-t border-line pt-8 sm:grid-cols-3">
+          <ul className="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 border-t border-white/10 pt-8 sm:grid-cols-3">
             {facts.map((fact) => (
               <li
                 key={fact}
-                className="flex items-start gap-2.5 text-sm font-medium text-text"
+                className="flex items-start gap-2.5 text-sm font-medium text-white"
               >
                 <span
                   aria-hidden="true"
-                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-orange"
+                  className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-white/40"
                 />
                 <span>{fact}</span>
               </li>

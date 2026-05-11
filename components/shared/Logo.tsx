@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 
-type Size = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl';
+type Size = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 const sizePx: Record<Size, number> = {
   sm: 32,
@@ -11,6 +11,7 @@ const sizePx: Record<Size, number> = {
   xl: 96,
   '2xl': 128,
   '3xl': 192,
+  '4xl': 256,
 };
 
 type LogoProps = {

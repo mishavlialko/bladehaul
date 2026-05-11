@@ -1,40 +1,47 @@
 'use client';
 
-import { useId, useMemo, useState, type FormEvent } from 'react';
+import { useId, useState, type FormEvent } from 'react';
 import { cn } from '@/lib/cn';
 
-const CURRENT_YEAR = new Date().getFullYear();
-const OLDEST_YEAR = 1990;
+type Trailer = 'open' | 'enclosed';
+
+export const MINI_QUOTE_EVENT = 'bladehaul:hydrate-quote';
+
+export type MiniQuotePayload = {
+  pickupZip: string;
+  deliveryZip: string;
+  trailerType: Trailer;
+};
 
 export default function MiniQuoteForm() {
   const fromId = useId();
   const toId = useId();
-  const yearId = useId();
+  const trailerOpenId = useId();
+  const trailerEnclosedId = useId();
 
   const [fromZip, setFromZip] = useState('');
   const [toZip, setToZip] = useState('');
-  const [year, setYear] = useState('');
-
-  const years = useMemo(
-    () =>
-      Array.from(
-        { length: CURRENT_YEAR + 1 - OLDEST_YEAR + 1 },
-        (_, i) => CURRENT_YEAR + 1 - i,
-      ),
-    [],
-  );
+  const [trailer, setTrailer] = useState<Trailer>('open');
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const payload: MiniQuotePayload = {
+      pickupZip: fromZip,
+      deliveryZip: toZip,
+      trailerType: trailer,
+    };
+
     try {
-      sessionStorage.setItem(
-        'bladehaul:mini-quote',
-        JSON.stringify({ fromZip, toZip, year }),
-      );
+      sessionStorage.setItem('bladehaul:mini-quote', JSON.stringify(payload));
     } catch {
       // sessionStorage may be unavailable (private mode); proceed without it
     }
+
+    // Notify QuoteForm (already mounted on the page) to hydrate + advance.
+    window.dispatchEvent(
+      new CustomEvent<MiniQuotePayload>(MINI_QUOTE_EVENT, { detail: payload }),
+    );
 
     const target = document.getElementById('quote');
     if (target) {
@@ -46,14 +53,14 @@ export default function MiniQuoteForm() {
 
   return (
     <div className="relative rounded-[2rem] bg-white/[0.04] p-1.5 ring-1 ring-white/10 backdrop-blur-sm">
-      <div className="absolute inset-x-6 -top-px h-px bg-gradient-to-r from-transparent via-orange/40 to-transparent" />
+      <div className="absolute inset-x-6 -top-px h-px bg-gradient-to-r from-transparent via-white/25 to-transparent" />
       <form
         onSubmit={handleSubmit}
         className="relative rounded-[calc(2rem-0.375rem)] bg-white p-6 text-text shadow-[0_30px_60px_-30px_rgba(11,13,17,0.6)] sm:p-7"
-        aria-label="Get a quick auto transport quote"
+        aria-label="Start a quote"
       >
         <div className="flex items-baseline justify-between gap-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-text-faint">
             Start a quote
           </p>
           <p className="text-[11px] font-medium text-text-faint">
@@ -94,25 +101,43 @@ export default function MiniQuoteForm() {
             />
           </FieldShell>
 
-          <FieldShell label="Vehicle year" htmlFor={yearId}>
-            <select
-              id={yearId}
-              name="vehicle-year"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-              required
-              className="appearance-none bg-[url('data:image/svg+xml;utf8,<svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2020%2020%22%20fill=%22%238A95A8%22><path%20fill-rule=%22evenodd%22%20d=%22M5.23%207.21a.75.75%200%20011.06.02L10%2011.06l3.71-3.83a.75.75%200%20011.08%201.04l-4.25%204.39a.75.75%200%2001-1.08%200L5.21%208.27a.75.75%200%2001.02-1.06z%22%20clip-rule=%22evenodd%22/></svg>')] bg-[length:1.25rem_1.25rem] bg-[position:right_0.5rem_center] bg-no-repeat pr-9"
-            >
-              <option value="" disabled>
-                Select a year
-              </option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </FieldShell>
+          <fieldset>
+            <legend className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-faint">
+              Trailer
+            </legend>
+            <div className="mt-1.5 grid grid-cols-2 gap-2">
+              <label
+                htmlFor={trailerOpenId}
+                className="flex cursor-pointer items-center justify-center rounded-xl bg-line-soft/60 px-3 py-3 text-sm font-medium text-text ring-1 ring-line transition duration-200 ease-out-quart hover:bg-white has-[:checked]:bg-white has-[:checked]:ring-2 has-[:checked]:ring-orange"
+              >
+                <input
+                  id={trailerOpenId}
+                  type="radio"
+                  value="open"
+                  name="trailer"
+                  checked={trailer === 'open'}
+                  onChange={() => setTrailer('open')}
+                  className="sr-only"
+                />
+                Open
+              </label>
+              <label
+                htmlFor={trailerEnclosedId}
+                className="flex cursor-pointer items-center justify-center rounded-xl bg-line-soft/60 px-3 py-3 text-sm font-medium text-text ring-1 ring-line transition duration-200 ease-out-quart hover:bg-white has-[:checked]:bg-white has-[:checked]:ring-2 has-[:checked]:ring-orange"
+              >
+                <input
+                  id={trailerEnclosedId}
+                  type="radio"
+                  value="enclosed"
+                  name="trailer"
+                  checked={trailer === 'enclosed'}
+                  onChange={() => setTrailer('enclosed')}
+                  className="sr-only"
+                />
+                Enclosed
+              </label>
+            </div>
+          </fieldset>
         </div>
 
         <button
@@ -166,7 +191,6 @@ function FieldShell({
           'mt-1.5 rounded-xl bg-line-soft/60 ring-1 ring-line transition duration-200 ease-out-quart',
           'focus-within:bg-white focus-within:ring-2 focus-within:ring-orange/30',
           '[&_input]:h-12 [&_input]:w-full [&_input]:rounded-xl [&_input]:bg-transparent [&_input]:px-4 [&_input]:text-base [&_input]:text-text [&_input]:outline-none [&_input]:placeholder:text-text-faint/70',
-          '[&_select]:h-12 [&_select]:w-full [&_select]:rounded-xl [&_select]:bg-transparent [&_select]:px-4 [&_select]:text-base [&_select]:text-text [&_select]:outline-none',
         )}
       >
         {children}

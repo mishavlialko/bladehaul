@@ -33,11 +33,11 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="scroll-mt-20 bg-navy text-white sm:scroll-mt-24"
+      className="scroll-mt-64 bg-navy text-white sm:scroll-mt-72"
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
             How it works
           </h2>
           <p className="mt-5 text-lg text-white/65">
@@ -49,13 +49,13 @@ export default function HowItWorks() {
           {steps.map(({ number, title, body, Icon }) => (
             <li key={number} className="flex flex-col p-7 sm:p-8">
               <div className="flex items-center justify-between">
-                <span className="font-display text-xs font-medium tracking-[0.22em] text-white/40">
+                <span className="font-display text-xs font-medium tracking-[0.22em] text-white/45">
                   {number}
                 </span>
                 <Icon
                   aria-hidden="true"
                   strokeWidth={1.5}
-                  className="h-5 w-5 text-orange"
+                  className="h-5 w-5 text-white"
                 />
               </div>
               <h3 className="mt-10 font-display text-xl font-semibold tracking-tight text-white sm:text-2xl">

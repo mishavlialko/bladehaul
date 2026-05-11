@@ -1,33 +1,51 @@
 import Container from '@/components/shared/Container';
 
-const chips = [
-  'Daily updates — even on quiet days',
-  'Price changes confirmed in writing',
-  'Same dispatcher from quote to delivery',
-  'No deposit until carrier confirmed',
+type Metric = {
+  headline: string;
+  detail: string;
+};
+
+const metrics: Metric[] = [
+  {
+    headline: 'Daily updates',
+    detail: 'Even on quiet days.',
+  },
+  {
+    headline: 'Written confirmations',
+    detail: 'Price changes never come by phone.',
+  },
+  {
+    headline: 'One dispatcher',
+    detail: 'Quote to delivery, same person.',
+  },
+  {
+    headline: 'No deposit',
+    detail: 'Until your carrier is confirmed.',
+  },
 ];
 
 export default function TrustStrip() {
   return (
     <section
       aria-label="What you can count on"
-      className="border-y border-white/10 bg-dark text-white/75"
+      className="border-b border-white/10 bg-navy text-white"
     >
-      <Container className="py-5 sm:py-6">
-        <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center">
-          {chips.map((chip) => (
-            <li
-              key={chip}
-              className="flex items-center gap-2 text-xs font-medium sm:text-sm"
+      <Container>
+        <dl className="grid grid-cols-2 divide-x divide-y divide-white/10 [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(2n-1)]:border-l-0 lg:grid-cols-4 lg:divide-y-0 lg:[&>*]:border-t-0">
+          {metrics.map((metric) => (
+            <div
+              key={metric.headline}
+              className="flex flex-col gap-2 px-5 py-8 sm:px-7 sm:py-10"
             >
-              <span
-                aria-hidden="true"
-                className="inline-block h-1 w-1 shrink-0 rounded-full bg-orange"
-              />
-              {chip}
-            </li>
+              <dt className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+                {metric.headline}
+              </dt>
+              <dd className="text-xs text-white/55 sm:text-sm">
+                {metric.detail}
+              </dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       </Container>
     </section>
   );

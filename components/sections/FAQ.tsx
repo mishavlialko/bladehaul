@@ -52,29 +52,29 @@ export default function FAQ() {
   return (
     <section
       id="faq"
-      className="scroll-mt-20 bg-line-soft text-text sm:scroll-mt-24"
+      className="scroll-mt-64 bg-navy text-white sm:scroll-mt-72"
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
             Questions we get asked most
           </h2>
         </div>
 
-        <ul className="mt-12 max-w-3xl border-t border-line lg:mt-16">
+        <ul className="mt-12 max-w-3xl border-t border-white/10 lg:mt-16">
           {items.map((item, idx) => {
             const isOpen = openIndex === idx;
             const triggerId = `${baseId}-trigger-${idx}`;
             const panelId = `${baseId}-panel-${idx}`;
             return (
-              <li key={item.q} className="border-b border-line">
+              <li key={item.q} className="border-b border-white/10">
                 <button
                   type="button"
                   id={triggerId}
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   onClick={() => setOpenIndex(isOpen ? null : idx)}
-                  className="flex w-full cursor-pointer items-start justify-between gap-6 py-5 text-left text-base font-medium text-text transition-colors duration-200 ease-out-quart hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange sm:text-lg"
+                  className="flex w-full cursor-pointer items-start justify-between gap-6 py-5 text-left text-base font-medium text-white transition-colors duration-200 ease-out-quart hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange sm:text-lg"
                 >
                   <span>{item.q}</span>
                   <Plus
@@ -96,7 +96,7 @@ export default function FAQ() {
                   )}
                 >
                   <div className="overflow-hidden">
-                    <p className="pb-6 pr-10 text-[15px] leading-relaxed text-text-dim">
+                    <p className="pb-6 pr-10 text-[15px] leading-relaxed text-white/65">
                       {item.a}
                     </p>
                   </div>

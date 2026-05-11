@@ -1,0 +1,173 @@
+export type Shipment = {
+  vehicle: string;
+  fromCity: string;
+  fromZip: string;
+  toCity: string;
+  toZip: string;
+  // 0 = just picked up, 1 = delivered. Values between 0.15 and 0.9
+  // keep the marker visibly inside the transit line on the preview.
+  progress: number;
+};
+
+export const shipments: Shipment[] = [
+  {
+    vehicle: '2019 Honda Accord',
+    fromCity: 'Brooklyn, NY',
+    fromZip: '11201',
+    toCity: 'Tampa, FL',
+    toZip: '33602',
+    progress: 0.65,
+  },
+  {
+    vehicle: '2021 Toyota RAV4',
+    fromCity: 'Los Angeles, CA',
+    fromZip: '90015',
+    toCity: 'Austin, TX',
+    toZip: '78701',
+    progress: 0.3,
+  },
+  {
+    vehicle: '2017 Ford F-150',
+    fromCity: 'Chicago, IL',
+    fromZip: '60601',
+    toCity: 'Orlando, FL',
+    toZip: '32801',
+    progress: 0.85,
+  },
+  {
+    vehicle: '2020 BMW 330i',
+    fromCity: 'Boston, MA',
+    fromZip: '02108',
+    toCity: 'Miami, FL',
+    toZip: '33139',
+    progress: 0.45,
+  },
+  {
+    vehicle: '2018 Subaru Outback',
+    fromCity: 'Seattle, WA',
+    fromZip: '98101',
+    toCity: 'Denver, CO',
+    toZip: '80202',
+    progress: 0.55,
+  },
+  {
+    vehicle: '2022 Tesla Model 3',
+    fromCity: 'San Francisco, CA',
+    fromZip: '94102',
+    toCity: 'New York, NY',
+    toZip: '10001',
+    progress: 0.2,
+  },
+  {
+    vehicle: '2016 Jeep Wrangler',
+    fromCity: 'Phoenix, AZ',
+    fromZip: '85003',
+    toCity: 'Minneapolis, MN',
+    toZip: '55401',
+    progress: 0.7,
+  },
+  {
+    vehicle: '2019 Toyota Tacoma',
+    fromCity: 'Atlanta, GA',
+    fromZip: '30303',
+    toCity: 'Las Vegas, NV',
+    toZip: '89101',
+    progress: 0.4,
+  },
+  {
+    vehicle: '2020 Honda CR-V',
+    fromCity: 'Newark, NJ',
+    fromZip: '07102',
+    toCity: 'Houston, TX',
+    toZip: '77002',
+    progress: 0.6,
+  },
+  {
+    vehicle: '2018 Mercedes C300',
+    fromCity: 'Dallas, TX',
+    fromZip: '75201',
+    toCity: 'Los Angeles, CA',
+    toZip: '90015',
+    progress: 0.5,
+  },
+  {
+    vehicle: '2021 Ford Mustang',
+    fromCity: 'Detroit, MI',
+    fromZip: '48201',
+    toCity: 'Phoenix, AZ',
+    toZip: '85003',
+    progress: 0.75,
+  },
+  {
+    vehicle: '2020 Toyota Camry',
+    fromCity: 'Philadelphia, PA',
+    fromZip: '19103',
+    toCity: 'Charlotte, NC',
+    toZip: '28202',
+    progress: 0.35,
+  },
+  {
+    vehicle: '2019 Chevy Silverado',
+    fromCity: 'Nashville, TN',
+    fromZip: '37201',
+    toCity: 'Sacramento, CA',
+    toZip: '95814',
+    progress: 0.25,
+  },
+  {
+    vehicle: '2017 Audi Q5',
+    fromCity: 'Pittsburgh, PA',
+    fromZip: '15222',
+    toCity: 'San Diego, CA',
+    toZip: '92101',
+    progress: 0.55,
+  },
+  {
+    vehicle: '2022 Lexus RX 350',
+    fromCity: 'Cleveland, OH',
+    fromZip: '44114',
+    toCity: 'Phoenix, AZ',
+    toZip: '85003',
+    progress: 0.8,
+  },
+  {
+    vehicle: '2019 Nissan Altima',
+    fromCity: 'Columbus, OH',
+    fromZip: '43215',
+    toCity: 'Tampa, FL',
+    toZip: '33602',
+    progress: 0.45,
+  },
+  {
+    vehicle: '2020 Mazda CX-5',
+    fromCity: 'Salt Lake City, UT',
+    fromZip: '84101',
+    toCity: 'Portland, OR',
+    toZip: '97204',
+    progress: 0.6,
+  },
+  {
+    vehicle: '2018 Chevy Camaro',
+    fromCity: 'Indianapolis, IN',
+    fromZip: '46204',
+    toCity: 'Miami, FL',
+    toZip: '33139',
+    progress: 0.7,
+  },
+  {
+    vehicle: '2021 Hyundai Tucson',
+    fromCity: 'Kansas City, MO',
+    fromZip: '64108',
+    toCity: 'Las Vegas, NV',
+    toZip: '89101',
+    progress: 0.3,
+  },
+  {
+    vehicle: '2019 Toyota Highlander',
+    fromCity: 'St. Paul, MN',
+    fromZip: '55101',
+    toCity: 'Orlando, FL',
+    toZip: '32801',
+    progress: 0.85,
+  },
+];

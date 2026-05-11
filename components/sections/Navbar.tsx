@@ -11,20 +11,20 @@ const navLinks = [
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-navy/95 backdrop-blur supports-[backdrop-filter]:bg-navy/80">
+    <header className="sticky top-0 z-50 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
       <Container
         as="nav"
         aria-label="Primary"
-        className="flex h-20 items-center justify-between sm:h-24"
+        className="flex h-64 items-center justify-between sm:h-72"
       >
-        <Logo size="lg" priority />
+        <Logo size="4xl" priority />
 
         <ul className="hidden items-center gap-8 sm:flex">
           {navLinks.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="text-sm font-medium text-white/80 transition-colors hover:text-white"
+                className="text-sm font-medium text-text-dim transition-colors hover:text-text"
               >
                 {link.label}
               </Link>
