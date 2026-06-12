@@ -1,5 +1,6 @@
 import About from '@/components/sections/About';
 import Comparison from '@/components/sections/Comparison';
+import Coverage from '@/components/sections/Coverage';
 import FAQ from '@/components/sections/FAQ';
 import FinalCTA from '@/components/sections/FinalCTA';
 import Footer from '@/components/sections/Footer';
@@ -53,11 +54,12 @@ export default function Home() {
       />
       <Navbar />
 
-      <main>
+      <main id="main" tabIndex={-1} className="outline-none">
         <Hero />
         <TrustStrip />
         <HowItWorks />
         <Comparison />
+        <Coverage />
         <Routes />
         <About />
         <FAQ />

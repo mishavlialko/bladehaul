@@ -1,15 +1,27 @@
+import Image from 'next/image';
 import Container from '@/components/shared/Container';
 import MiniQuoteForm from '@/components/sections/MiniQuoteForm';
-import ShipmentPreview from '@/components/sections/ShipmentPreview';
+import ShipmentCascade from '@/components/sections/ShipmentCascade';
 
 export default function Hero() {
   return (
     <section className="relative isolate overflow-hidden bg-navy text-white">
-      {/* Background photo layer — swap /public/hero-bg.jpg for the final asset */}
+      {/* Background photo layer — swap /public/hero-bg.jpg for the final asset.
+          next/image with priority marks this as the LCP element and serves
+          resized AVIF/WebP instead of the raw 469 KB JPEG. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-20 bg-navy [background-image:url('/hero-bg.jpg')] bg-cover bg-center"
-      />
+        className="pointer-events-none absolute inset-0 -z-20 bg-navy"
+      >
+        <Image
+          src="/hero-bg.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </div>
       {/* Light universal darken (keeps photo visible) */}
       <div
         aria-hidden="true"
@@ -26,19 +38,35 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-32 bg-gradient-to-b from-transparent to-navy"
       />
 
-      <Container className="relative z-0 py-20 sm:py-28 lg:py-36">
+      <Container className="relative z-0 pt-[calc(8rem+env(safe-area-inset-top))] pb-20 sm:pt-[calc(12rem+env(safe-area-inset-top))] sm:pb-28 md:pt-[calc(15rem+env(safe-area-inset-top))] lg:pb-36">
         <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7 xl:col-span-7 lg:pt-6">
-            <div className="flex items-center gap-3">
-              <span aria-hidden="true" className="h-px w-8 bg-white/20" />
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55 sm:text-xs">
-                One Dispatcher <span aria-hidden="true">·</span> 50 States{' '}
-                <span aria-hidden="true">·</span> Daily Updates
-              </p>
-            </div>
+            <p className="font-mono text-[10px] uppercase leading-relaxed tracking-[0.18em] text-white/55 sm:text-[11px]">
+              <span className="text-white/35">STATUS:</span>{' '}
+              <span className="text-white/75">ACTIVE</span>
+              <span aria-hidden="true" className="px-2 text-white/25">
+                {'//'}
+              </span>
+              <span className="text-white/35">DISPATCH:</span>{' '}
+              <span className="text-white/75">ONLINE</span>
+              <span aria-hidden="true" className="px-2 text-white/25">
+                {'//'}
+              </span>
+              <span className="text-white/75">50 STATES</span>
+            </p>
 
             <h1 className="mt-7 font-display text-[2.5rem] font-semibold leading-[0.95] tracking-[-0.04em] sm:text-6xl lg:text-7xl">
-              The Sharpest Way
+              The{' '}
+              <span
+                className="bg-clip-text text-transparent"
+                style={{
+                  backgroundImage:
+                    'linear-gradient(180deg, #F2A516 0%, #EA6A11 22%, #C97432 46%, #8A95A8 72%, #C5CCD6 100%)',
+                }}
+              >
+                Sharpest
+              </span>{' '}
+              Way
               <br className="hidden sm:inline" /> to Ship Your Car
             </h1>
 
@@ -58,7 +86,7 @@ export default function Hero() {
           <div className="lg:col-span-5 xl:col-span-5">
             <MiniQuoteForm />
             <div className="mt-6">
-              <ShipmentPreview />
+              <ShipmentCascade />
             </div>
           </div>
         </div>

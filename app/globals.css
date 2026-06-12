@@ -15,3 +15,34 @@
     @apply outline-2 outline-offset-2 outline-orange;
   }
 }
+
+/* Coverage banner: expanding ring on city dots in the US map SVG.
+ * `r` is animatable in modern browsers. Staggered delays via modifier classes
+ * so the four pins don't pulse in sync.
+ */
+@keyframes coverage-ring {
+  0% {
+    r: 4;
+    opacity: 0.6;
+  }
+  100% {
+    r: 18;
+    opacity: 0;
+  }
+}
+
+.coverage-pulse-ring {
+  animation: coverage-ring 2.6s ease-out infinite;
+}
+.coverage-pulse-ring--d2 {
+  animation-delay: 0.6s;
+}
+.coverage-pulse-ring--d3 {
+  animation-delay: 1.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .coverage-pulse-ring {
+    animation: none;
+  }
+}

@@ -10,7 +10,7 @@ export default function About() {
   return (
     <section
       id="about"
-      className="scroll-mt-64 bg-navy text-white sm:scroll-mt-72"
+      className="scroll-mt-28 bg-navy text-white sm:scroll-mt-48 md:scroll-mt-60"
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
