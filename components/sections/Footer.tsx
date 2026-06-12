@@ -5,7 +5,6 @@ import Logo from '@/components/shared/Logo';
 type FooterLink = {
   label: string;
   href: string;
-  external?: boolean;
 };
 
 type FooterColumn = {
@@ -18,8 +17,7 @@ const columns: FooterColumn[] = [
     heading: 'Company',
     links: [
       { label: 'About', href: '#about' },
-      { label: 'Careers', href: '#careers' },
-      { label: 'Contact', href: 'mailto:info@bladehaul.com', external: true },
+      { label: 'Contact', href: 'mailto:info@bladehaul.com' },
     ],
   },
   {
@@ -43,7 +41,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-line bg-white text-text-dim">
+    <footer className="border-t border-line bg-paper text-text-dim">
       <Container className="py-16 sm:py-20">
         <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-1">
@@ -101,15 +99,24 @@ export default function Footer() {
               <ul className="mt-4 space-y-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      {...(link.external
-                        ? { target: '_blank', rel: 'noopener noreferrer' }
-                        : {})}
-                      className="text-sm text-text-dim transition-colors hover:text-text"
-                    >
-                      {link.label}
-                    </Link>
+                    {/* Real pages go through next/link; hash + mailto links
+                        are plain <a> (next/link skips re-scrolling when the
+                        hash is already in the URL). */}
+                    {link.href.startsWith('/') ? (
+                      <Link
+                        href={link.href}
+                        className="text-sm text-text-dim transition-colors hover:text-text"
+                      >
+                        {link.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={link.href}
+                        className="text-sm text-text-dim transition-colors hover:text-text"
+                      >
+                        {link.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -118,7 +125,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-line pt-8">
-          <div className="flex flex-col gap-4 text-xs text-text-faint sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 text-xs text-text-dim sm:flex-row sm:items-center sm:justify-between">
             <p>© {year} BladeHaul Auto Transport LLC.</p>
             <a
               href="mailto:info@bladehaul.com"

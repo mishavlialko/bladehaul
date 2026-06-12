@@ -17,7 +17,7 @@ export default function PrivacyPage() {
   return (
     <>
       <Navbar />
-      <main>
+      <main id="main" tabIndex={-1} className="outline-none">
         <article className="bg-white py-24 text-text sm:py-28 lg:py-32">
           <Container className="max-w-3xl">
             <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-faint">

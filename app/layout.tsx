@@ -1,15 +1,31 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Inter_Tight } from 'next/font/google';
+import { Big_Shoulders, Inter, JetBrains_Mono } from 'next/font/google';
+import AnchorScroll from '@/components/shared/AnchorScroll';
 import './globals.css';
 
+// Inter: workhorse body face. Best legibility for long text on phone
+// screens, which matters because our audience is reading on iPhones.
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
   display: 'swap',
 });
 
-const interTight = Inter_Tight({
-  variable: '--font-inter-tight',
+// Big Shoulders Display: display headings (H1 slogan, section H2s).
+// American industrial heritage — condensed bold workhorse face designed
+// for Chicago Design Museum. Echoes the BladeHaul wordmark's heavy
+// condensed character without copying it. Variable weights 100-900.
+const bigShoulders = Big_Shoulders({
+  variable: '--font-big-shoulders',
+  subsets: ['latin'],
+  display: 'swap',
+});
+
+// JetBrains Mono: operator-console flavor for the navbar top-strip,
+// ShipmentCard footers, Coverage caption — anywhere mono signals
+// "tactical telemetry" rather than just decorative.
+const jetbrainsMono = JetBrains_Mono({
+  variable: '--font-jetbrains-mono',
   subsets: ['latin'],
   display: 'swap',
 });
@@ -73,6 +89,10 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  // viewport-fit=cover lets the page extend into the iOS safe-area
+  // (notch / Dynamic Island). We then use env(safe-area-inset-top)
+  // inside sticky elements to avoid being clipped by the Dynamic Island.
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -81,9 +101,18 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${interTight.variable} scroll-smooth`}
+      className={`${inter.variable} ${bigShoulders.variable} ${jetbrainsMono.variable} motion-safe:scroll-smooth`}
     >
-      <body>{children}</body>
+      <body>
+        <AnchorScroll />
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-paper focus:px-4 focus:py-3 focus:text-sm focus:font-semibold focus:text-text focus:outline-2 focus:outline-offset-2 focus:outline-orange"
+        >
+          Skip to content
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

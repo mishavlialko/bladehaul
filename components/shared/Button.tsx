@@ -62,6 +62,17 @@ export default function Button(props: ButtonProps) {
       rest as AnchorHTMLAttributes<HTMLAnchorElement> & {
         href: string;
       };
+    // In-page anchors render a plain <a>: next/link silently skips the
+    // scroll when the target hash is already in the URL, so a second click
+    // on e.g. "Get a Real Quote" did nothing. Native anchors re-scroll on
+    // every click.
+    if (href.startsWith('#')) {
+      return (
+        <a href={href} className={classes} {...anchorRest}>
+          {children}
+        </a>
+      );
+    }
     return (
       <Link href={href} className={classes} {...anchorRest}>
         {children}
