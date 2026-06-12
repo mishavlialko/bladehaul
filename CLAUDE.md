@@ -9,7 +9,7 @@ This file is the master context for AI assistants (Claude Code, Cursor, Antigrav
 **Project:** Landing page for BladeHaul Auto Transport LLC
 **Goal:** Convert paid traffic and organic search visitors into qualified car shipping leads via a quote form. Lead data will be pushed to BeRocker CRM via webhook (when activated, post-MC#).
 **Status:** Pre-launch. Company registered, EIN pending, FMCSA broker authority pending. Site will go live before MC# becomes active; quote form is fully operational from day one.
-**Stack:** React (Next.js 14+ App Router) + Tailwind CSS + TypeScript. Deployment: Vercel.
+**Stack:** React 19 (Next.js 16 App Router) + Tailwind CSS v3 + TypeScript (strict). Deployment: Vercel.
 
 ---
 
@@ -97,6 +97,13 @@ This file is the master context for AI assistants (Claude Code, Cursor, Antigrav
 - "Same person every call"
 - "From quote to driveway"
 
+**Pricing communication rule (Misha decision, June 2026 — non-negotiable):**
+
+- NEVER publish price ranges, ballpark figures, or "average cost" numbers anywhere on the site. Carrier prices move daily; a published range is a promise we can't keep.
+- The trust move is the MECHANISM, not a number: we check live market rates for the customer's exact route, individually, and send a real number (within 2 business hours).
+- If a section feels like it needs a price anchor, route the user to the quote form instead.
+- The price-change mechanism has a brand name: **"The Written Price Rule"** (Misha-approved, June 2026). Price goes up → customer is told in writing with two options: pay the difference and keep the date, or keep the price and move the date. Use this exact name in copy (Comparison tag, FAQ answer). Never rename it casually.
+
 ---
 
 ## Visual Design System
@@ -105,20 +112,23 @@ This file is the master context for AI assistants (Claude Code, Cursor, Antigrav
 
 | Token         | Hex       | Usage                                              |
 | ------------- | --------- | -------------------------------------------------- |
-| `navy`        | `#0B0D11` | Page background (dark sections), navbar background |
+| `navy`        | `#0B0D11` | Page background (dark sections)                    |
 | `dark`        | `#14181F` | Card backgrounds on dark sections                  |
 | `steel`       | `#6B7689` | Secondary text, "BLADE" in logo                    |
 | `text`        | `#1A1A1A` | Primary text on light sections                     |
 | `text-dim`    | `#555B67` | Secondary text on light sections                   |
-| `text-faint`  | `#8A95A8` | Captions, microcopy                                |
+| `text-faint`  | `#68707E` | Captions, microcopy                                |
 | `orange`      | `#EA6A11` | Primary accent, CTAs, "HAUL" in logo               |
 | `orange-dark` | `#B75A1D` | Hover state for orange CTAs                        |
 | `orange-bg`   | `#FFF1E5` | Subtle background tint for callouts                |
 | `line`        | `#E1E4E8` | Borders, dividers on light sections                |
 | `line-soft`   | `#F1F3F5` | Very subtle backgrounds, alternating rows          |
 | `white`       | `#FFFFFF` | Card backgrounds on light sections                 |
+| `paper`       | `#F4F4F0` | Light bookend surface (Navbar + Footer)            |
 
-**Tailwind extension (add to `tailwind.config.ts`):**
+**Layout note:** The page is a "dark sandwich" — a light `paper` Navbar on top, a dark `navy` body in the middle (Hero, How It Works, Comparison, Coverage, Routes, FAQ, Quote Form), and a light `paper` Footer at the bottom. This is intentional and supersedes any older "dark navbar" guidance.
+
+**Tailwind extension (current values mirrored from `tailwind.config.ts` — that file is the source of truth):**
 
 ```ts
 theme: {
@@ -127,18 +137,23 @@ theme: {
       navy: '#0B0D11',
       dark: '#14181F',
       steel: '#6B7689',
+      text: '#1A1A1A',
       'text-dim': '#555B67',
-      'text-faint': '#8A95A8',
-      orange: {
-        DEFAULT: '#EA6A11',
-        dark: '#B75A1D',
-        bg: '#FFF1E5',
-      },
+      'text-faint': '#68707E',
+      orange: { DEFAULT: '#EA6A11', dark: '#B75A1D', bg: '#FFF1E5' },
+      line: '#E1E4E8',
       'line-soft': '#F1F3F5',
+      paper: '#F4F4F0',
     },
     fontFamily: {
-      sans: ['Inter', 'system-ui', 'sans-serif'],
-      display: ['Inter Tight', 'Inter', 'sans-serif'],
+      sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+      display: ['var(--font-big-shoulders)', 'var(--font-inter)', 'sans-serif'],
+      mono: ['var(--font-jetbrains-mono)', 'ui-monospace', 'monospace'],
+    },
+    transitionTimingFunction: {
+      'out-quart': 'cubic-bezier(0.23, 1, 0.32, 1)',
+      'out-expo': 'cubic-bezier(0.16, 1, 0.3, 1)',
+      'in-out-quart': 'cubic-bezier(0.77, 0, 0.175, 1)',
     },
   },
 }
@@ -146,9 +161,10 @@ theme: {
 
 **Typography:**
 
-- Headings: Inter Tight (or Inter) — bold/semibold weights
-- Body: Inter — regular/medium
-- No serif fonts. No cursive. No display fonts.
+- Headings (H1 slogan, section H2s): **Big Shoulders Display** — American industrial condensed face, bold weights. Loaded via `next/font/google`, CSS var `--font-big-shoulders`, Tailwind `font-display`.
+- Body: **Inter** — regular/medium. CSS var `--font-inter`, Tailwind `font-sans` (default).
+- Tactical micro-copy (navbar dispatch strip, ShipmentCard footers, section eyebrows): **JetBrains Mono**. CSS var `--font-jetbrains-mono`, Tailwind `font-mono`.
+- No serif. No cursive. No script/handwriting fonts.
 - H1 (hero): 48–72px desktop, 36–44px mobile
 - H2 (section headers): 32–40px desktop, 28–32px mobile
 - Body: 16–18px
@@ -166,10 +182,9 @@ theme: {
 **Logo usage:**
 
 - Final logo: wordmark "BLADEHAUL" with steel grey "BLADE" + orange "HAUL", inside a torn shield-blade emblem
-- Logo will be provided as SVG by Denis (vectorizing now)
-- On dark backgrounds: use light/white version
-- On light backgrounds: use full color version
-- Minimum size: 32px height (use simplified standalone mark for favicons under 64px)
+- Delivered as `public/logo.svg` (3.3 KB vector). Rendered via `components/shared/Logo.tsx` at a fixed aspect ratio. The old 3.3 MB `logo.png` has been removed.
+- Favicon: `app/icon.svg` — the standalone blade emblem only (no wordmark, unreadable at 16px). Next.js App Router auto-wires it.
+- Currently used only on `paper` (light) surfaces (Navbar, Footer). A light/white variant for dark surfaces does not exist yet — request from Denis if a dark-background placement is ever needed.
 - Clear space around logo: at least 0.5x the height of the logo on all sides
 
 ---
@@ -180,10 +195,14 @@ Single-page landing initially. May expand to multi-page after MC# active.
 
 ### Sections (top to bottom)
 
-1. **Navbar** (sticky, dark background)
-   - Logo (left)
-   - Links: How It Works, Routes, About, Reviews (when available)
-   - CTA button: "Get a Quote" (right)
+> **Implemented order (June 2026):** Navbar → Hero (with MiniQuoteForm + ShipmentCascade) → Trust strip → How It Works → Comparison → **Coverage** (US-map section, added since this spec) → Routes → About → FAQ → Final CTA → **Quote Form** (full 3-step form, now near the bottom) → Footer. The per-section copy guidance below still applies; only the order and the Quote Form's position have changed.
+
+1. **Navbar** (fixed, light `paper` background — top of the dark sandwich)
+   - Auto-hides on scroll-down, reappears on scroll-up. Guards against iOS focus auto-scroll and respects `prefers-reduced-motion`.
+   - Desktop: top utility "dispatch strip" (mono: BLADEHAUL · WYOMING LLC · coords · contact), then logo (left) + links (center) + CTA (right).
+   - Mobile: logo (left) + hamburger (right). Tapping opens a full-screen dark overlay menu (numbered `[01]`–`[04]` links + CTA + contact strip); closes on link tap, backdrop, X, or ESC; locks body scroll.
+   - Links: How It Works, Routes, FAQ, About
+   - CTA button: "Get a Real Quote" (anchors to `#quote`)
 
 2. **Hero**
    - Eyebrow text: small, faint, all-caps: "COAST-TO-COAST AUTO TRANSPORT"
@@ -201,9 +220,9 @@ Single-page landing initially. May expand to multi-page after MC# active.
      - "Written confirmations"
    - When MC# becomes active, replace with: MC# number, Insurance status, Reviews badge
 
-4. **Quote Form (main conversion section)**
-   - Heading: "Get Your Quote"
-   - Sub-heading: "Sharp on every detail — starting with your price."
+4. **Quote Form (main conversion section)** — *as built:* a **3-step** form (Route → Vehicle → Contact) with a progress indicator, placed near the **bottom** of the page (after Final CTA). A condensed **MiniQuoteForm** lives in the Hero (Pickup/Delivery ZIP + trailer) and hands its values to the full form via `sessionStorage` + a custom event.
+   - Heading: "Get a real quote"
+   - Sub-heading: "It takes one minute."
    - Fields (in order):
      1. Pickup ZIP + city autofill
      2. Delivery ZIP + city autofill
@@ -215,7 +234,7 @@ Single-page landing initially. May expand to multi-page after MC# active.
      8. Ready Date (date picker, default = 3 days from today)
      9. First Name + Last Name
      10. Email
-     11. Phone (US format, with country code +1 prefix locked)
+     11. Phone (**optional**, US format, auto-formatted to +1 as the user types)
    - Submit button: "Get My Quote" (full width on mobile, prominent on desktop)
    - Trust microcopy under form: "No spam, no robocalls. Just a real quote from a real person."
    - **Important:** Quote form submission should POST to a backend endpoint. For now, write the form to POST to `/api/quote` which logs to console and (later) forwards to BeRocker webhook. Email confirmation to misha@bladehaul.com on every submission.
@@ -284,45 +303,56 @@ Single-page landing initially. May expand to multi-page after MC# active.
 
 ## Technical Requirements
 
-**Stack:**
+**Stack (actual, June 2026):**
 
-- Next.js 14+ with App Router
-- React 18+
+- Next.js 16.2 with App Router (Turbopack)
+- React 19.2
 - TypeScript (strict mode)
-- Tailwind CSS for styling
+- Tailwind CSS v3 for styling
 - Lucide React for icons
 - React Hook Form + Zod for form validation
-- next/font for font loading (Inter)
-- next/image for image optimization
+- Resend for transactional email
+- `next/font` for fonts (Inter, Big Shoulders Display, JetBrains Mono)
+- `next/image` for image optimization
+
+> **Dev-server caveat:** Next 16 + Turbopack dev mode breaks hydration on mobile (`useEffect` never fires on iPhone Safari / some Android). **Always verify mobile against a production build** (`npm run build && npm start`), never `next dev`.
 
 **Page structure:**
 
 ```
 app/
-├── layout.tsx              (root layout, metadata, fonts)
-├── page.tsx                (landing — composes all sections)
+├── layout.tsx              (root layout, metadata, 3 fonts, viewport)
+├── page.tsx                (landing — composes all sections + JSON-LD)
+├── icon.svg                (favicon — standalone blade emblem)
+├── globals.css
+├── robots.ts               (generated robots.txt)
+├── sitemap.ts              (generated sitemap.xml)
 ├── api/
 │   └── quote/
 │       └── route.ts        (POST endpoint for quote form)
-├── privacy/
-│   └── page.tsx            (privacy policy)
-├── terms/
-│   └── page.tsx            (terms of service)
-└── globals.css
+├── privacy/page.tsx        (privacy policy)
+└── terms/page.tsx          (terms of service)
 
 components/
-├── ui/                     (shadcn-style primitives if used)
 ├── sections/
-│   ├── Navbar.tsx
+│   ├── Navbar.tsx           (auto-hide nav + mobile overlay menu)
 │   ├── Hero.tsx
+│   ├── MiniQuoteForm.tsx    (condensed quote form inside Hero)
+│   ├── ShipmentCard.tsx     (ambient "in transit" card)
+│   ├── ShipmentCascade.tsx  (rotating stack of ShipmentCards)
 │   ├── TrustStrip.tsx
-│   ├── QuoteForm.tsx
-│   ├── HowItWorks.tsx
+│   ├── HowItWorks.tsx       (step-rail with connected nodes)
 │   ├── Comparison.tsx
-│   ├── Routes.tsx
+│   ├── Coverage.tsx         (US-map coverage section)
+│   ├── Routes.tsx           (dispatch-manifest table)
 │   ├── About.tsx
 │   ├── FAQ.tsx
 │   ├── FinalCTA.tsx
+│   ├── QuoteForm.tsx        (3-step form shell + success state)
+│   ├── QuoteProgress.tsx    (1-2-3 step indicator)
+│   ├── QuoteStepRoute.tsx   (step 1: ZIPs + trailer)
+│   ├── QuoteStepVehicle.tsx (step 2: year/make/model/condition)
+│   ├── QuoteStepContact.tsx (step 3: date/name/email/phone)
 │   └── Footer.tsx
 └── shared/
     ├── Container.tsx       (max-w-7xl wrapper)
@@ -330,9 +360,11 @@ components/
     └── Logo.tsx
 
 lib/
-├── routes.ts               (popular routes data for Routes section)
-├── faq.ts                  (FAQ data)
-└── validation.ts           (Zod schemas for quote form)
+├── cn.ts                   (clsx + tailwind-merge helper)
+├── validation.ts           (Zod schemas + per-step field groups)
+├── phone.ts                (US phone formatter)
+├── makes.ts                (vehicle make datalist for the Make input)
+└── shipments.ts            (sample shipment data for ShipmentCascade)
 ```
 
 **SEO requirements:**
@@ -341,7 +373,7 @@ lib/
 - Meta description: "Coast-to-coast car shipping with honest quotes, daily updates, and vetted carriers. Get your quote in 60 seconds. BladeHaul Auto Transport — sharp on every detail."
 - Open Graph image (1200×630): logo + slogan on brand-color background, PNG export
 - Twitter card: same OG image
-- JSON-LD schema for LocalBusiness (use Wyoming address, add MC# when active)
+- JSON-LD schema: `MovingCompany` type (in `app/page.tsx`), Wyoming address + founder. Add MC# when active.
 - robots.txt: allow all (until/unless we want to gate something)
 - sitemap.xml: generated by Next.js
 - Canonical URLs on every page

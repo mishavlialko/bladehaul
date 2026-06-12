@@ -36,6 +36,13 @@ yarn-error.log*
 
 # local visual references (Nano Banana / Grok Imagine / Claude Design outputs)
 /references/
+/.claude-design-tmp*/
+
+# vendored agent skills (reproducible from skills-lock.json)
+/.agents/
+
+# local agent session memory
+/.remember/
 
 # vercel
 .vercel

@@ -8,25 +8,27 @@
 
 | Token            | Hex       | Role                                                                             |
 | ---------------- | --------- | -------------------------------------------------------------------------------- |
-| `navy`           | `#0B0D11` | Dark page background, navbar, hero, footer                                       |
+| `navy`           | `#0B0D11` | Dark page background (hero + body sections of the dark sandwich)                 |
 | `dark`           | `#14181F` | Slight lift from navy — used for inset bands (TrustStrip) and dark card surfaces |
 | `steel`          | `#6B7689` | "BLADE" wordmark color; secondary text on dark                                   |
 | `text`           | `#1A1A1A` | Primary text on light sections                                                   |
 | `text-dim`       | `#555B67` | Secondary text on light sections                                                 |
-| `text-faint`     | `#8A95A8` | Captions, microcopy, very faint labels                                           |
+| `text-faint`     | `#68707E` | Captions, microcopy, very faint labels (AA-compliant on paper/white)             |
 | `orange.DEFAULT` | `#EA6A11` | Primary CTA, single accent. The hero color of the brand.                         |
 | `orange.dark`    | `#B75A1D` | Hover/active state for orange CTAs                                               |
 | `orange.bg`      | `#FFF1E5` | Subtle background tint for light-section orange callouts                         |
 | `line`           | `#E1E4E8` | Borders, dividers on light sections                                              |
 | `line-soft`      | `#F1F3F5` | Alternating subtle row backgrounds                                               |
+| `paper`          | `#F4F4F0` | Light bookend surface — Navbar + Footer background (dark-sandwich layout)        |
 
 **Neutrals are tinted toward the brand hue, not pure greys.** Tailwind's defaults (`gray-*`, `slate-*`) are forbidden — always use the named tokens. `#000` and `#fff` are also forbidden; use `navy` and `white` (white is the only exception, since orange + navy + white is the locked tri-tone).
 
 ## Typography
 
 - **Body:** Inter (variable font, loaded via next/font, `--font-inter` CSS var, weights 400/500/600)
-- **Display / Headings:** Inter Tight (`--font-inter-tight`, weights 500/600/700)
-- No serifs. No cursives. No decorative display faces.
+- **Display / Headings:** Big Shoulders Display (`--font-big-shoulders`, Tailwind `font-display`) — American industrial condensed face
+- **Tactical micro-copy:** JetBrains Mono (`--font-jetbrains-mono`, Tailwind `font-mono`) — dispatch strips, eyebrows, telemetry labels
+- No serifs. No cursives. No script/handwriting faces.
 
 ### Scale (1.25× ratio between steps)
 
@@ -82,7 +84,7 @@ Located in `components/shared/`:
 
 - `Container` — `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`. Polymorphic `as` prop. Use everywhere a content boundary is needed.
 - `Button` — `variant: primary | secondary`, `size: md | lg`, optional `fullWidth`, optional `href` (renders as `<Link>`) otherwise `<button>`. Primary = orange solid. Secondary = white-border outline on dark only.
-- `Logo` — next/image over `/logo.png` (4096×4096 transparent PNG, swap to SVG when Denis delivers). Sizes `sm | md | lg | xl | 2xl | 3xl` → 32 / 48 / 64 / 96 / 128 / 192 px.
+- `Logo` — `<img>` over `/logo.svg` (3.3 KB vector, fixed 39.27:22.98 aspect). `size` = rendered height: `sm | md | lg | xl | 2xl | 3xl | 4xl` → 22 / 32 / 44 / 64 / 88 / 128 / 176 px. Clicking it on the home page scrolls to top (reduced-motion aware).
 - `cn()` utility in `lib/cn.ts` (clsx + tailwind-merge) for class merging. Use everywhere classes are conditional or merged.
 
 ## Slop rejection list
@@ -100,8 +102,8 @@ These are AI defaults to reject on sight:
 ## Currently shipped / pending
 
 - ✅ Container, Button (primary + secondary), Logo, cn()
-- ✅ Navbar (sticky, dark, `h-20 sm:h-24`, Logo `lg`)
-- ✅ Footer (dark, 4-column grid, Logo `xl`, social pills)
-- ⚠️ Hero — exists but is generic (centered logo + radial wash + text + CTA). Slated for redesign.
-- ⚠️ TrustStrip — exists with 4 chips on a `bg-dark` band. Acceptable but minimal.
-- ❌ HowItWorks, Comparison, Routes, About, FAQ, QuoteForm, FinalCTA — not built yet.
+- ✅ Navbar (fixed `paper`, auto-hide on scroll, desktop dispatch strip, mobile full-screen overlay menu)
+- ✅ Footer (`paper`, 4-column grid, Logo `xl`, social pills)
+- ✅ Hero (dark, asymmetric: copy left, MiniQuoteForm + ShipmentCascade right, photo bg)
+- ✅ TrustStrip, HowItWorks (step-rail), Comparison, Coverage (dot-grid US map), Routes (dispatch manifest), About, FAQ (accordion), FinalCTA, QuoteForm (3-step)
+- ⏳ OG image (1200×630) — not yet produced

@@ -25,7 +25,7 @@ Plus [AGENTS.md](./AGENTS.md) — a note from `create-next-app` reminding you to
 
 ### What is locked and what is negotiable
 
-- **LOCKED:** Slogan ("The Sharpest Way to Ship Your Car" / "Sharp on every detail."), color palette (hex values in `tailwind.config.ts`), font stack (Inter + Inter Tight), brand voice rules (no self-claims, no em-dashes).
+- **LOCKED:** Slogan ("The Sharpest Way to Ship Your Car" / "Sharp on every detail."), color palette (hex values in `tailwind.config.ts`), font stack (Inter + Big Shoulders Display + JetBrains Mono), brand voice rules (no self-claims, no em-dashes).
 - **Negotiable:** Everything else — section copy, visual treatments, layout details, motion choices, asset choices.
 
 ---
@@ -70,9 +70,10 @@ Available scripts:
 
 ```text
 app/
-├── layout.tsx              Root layout, metadata API, font loading
-├── page.tsx                Landing page (composes all sections)
-├── globals.css             Tailwind directives + base layer
+├── layout.tsx              Root layout, metadata API, 3 fonts, skip link
+├── page.tsx                Landing page (composes all sections + JSON-LD)
+├── icon.svg                Favicon (standalone blade emblem)
+├── globals.css             Tailwind directives + base layer + coverage keyframes
 ├── robots.ts               robots.txt generator
 ├── sitemap.ts              sitemap.xml generator
 ├── api/quote/route.ts      POST /api/quote (Zod validate, rate limit, Resend stub)
@@ -83,29 +84,40 @@ components/
 ├── shared/
 │   ├── Container.tsx       max-w-7xl wrapper, polymorphic `as` prop
 │   ├── Button.tsx          Primary/secondary, md/lg, optional href
-│   └── Logo.tsx            next/image over /public/logo.png
+│   └── Logo.tsx            /public/logo.svg wordmark, scroll-to-top on home
 └── sections/
-    ├── Navbar.tsx          Sticky top, dark, Logo + nav links + CTA
-    ├── Hero.tsx            Dark, asymmetric layout, MiniQuoteForm right
+    ├── Navbar.tsx          Fixed paper bg, auto-hide on scroll, mobile overlay menu
+    ├── Hero.tsx            Dark, asymmetric: copy left, MiniQuoteForm + cascade right
     ├── MiniQuoteForm.tsx   3-field starter form, sessionStorage handoff
+    ├── ShipmentCard.tsx    Ambient "in transit" card (front card animates)
+    ├── ShipmentCascade.tsx Static deck of 3 ShipmentCards (decorative)
     ├── TrustStrip.tsx      4 mechanical chips
-    ├── HowItWorks.tsx      3-step grid with Lucide icons
-    ├── Comparison.tsx      Light, 5 pain-vs-mechanism pairs
-    ├── Routes.tsx          Dark, 10-route card grid
-    ├── About.tsx           Light, founder bio + 3 fact bullets
-    ├── FAQ.tsx             Light, accordion (client component, grid-rows animation)
-    ├── FinalCTA.tsx        Dark, single push CTA
-    ├── QuoteForm.tsx       Light, full 9-field quote form (client component)
-    └── Footer.tsx          Dark, 4-column grid + social pills + bottom strip
+    ├── HowItWorks.tsx      3-step rail with connected orange nodes
+    ├── Comparison.tsx      Dark, 5 pain-vs-mechanism pairs
+    ├── Coverage.tsx        Dot-grid US map + stats
+    ├── Routes.tsx          Dispatch-manifest table, 10 routes
+    ├── About.tsx           Founder bio + 3 fact bullets
+    ├── FAQ.tsx             Accordion (client component, grid-rows animation)
+    ├── FinalCTA.tsx        Single push CTA
+    ├── QuoteForm.tsx       3-step quote form shell + success state
+    ├── QuoteProgress.tsx   1-2-3 step indicator
+    ├── QuoteField.tsx      Shared field shell + input styling for the steps
+    ├── QuoteStepRoute.tsx  Step 1: ZIPs (live city lookup) + trailer
+    ├── QuoteStepVehicle.tsx Step 2: year/make (datalist)/model/VIN/condition
+    ├── QuoteStepContact.tsx Step 3: date/name/email/phone
+    └── Footer.tsx          Paper bg, 4-column grid + social pills + bottom strip
 
 lib/
 ├── cn.ts                   clsx + tailwind-merge class merge utility
 ├── phone.ts                US phone format-as-typing helper
-└── validation.ts           Zod schema for the quote form
+├── makes.ts                Vehicle make datalist options
+├── shipments.ts            Sample shipment data for ShipmentCascade
+└── validation.ts           Zod schema + per-step field groups
 
 public/
-├── logo.png                Full logo (4096×4096 transparent PNG)
-└── blade-emblem.png        Emblem-only variant (587×533 transparent PNG)
+├── logo.svg                Full logo (3.3 KB vector)
+├── hero-bg.jpg             Hero background photo (served via next/image)
+└── blade-emblem.png        Emblem-only variant (587×533 transparent PNG, unused in code)
 ```
 
 ---
@@ -132,7 +144,8 @@ Pre-launch, all keys can be empty and the form still works end-to-end (logs to c
 | 3 — 11 page sections                                      | ✅ Done           |
 | 4 — API route, validation, email/webhook stubs            | ✅ Done           |
 | 5 — Metadata, robots, sitemap, JSON-LD                    | ✅ Done           |
-| 5 — OG image, favicon                                     | ⏸ Deferred (waiting for visual identity lock) |
+| 5 — Favicon (app/icon.svg, blade emblem)                  | ✅ Done           |
+| 5 — OG image (1200×630)                                   | ⏸ Deferred        |
 | 6 — Privacy + Terms pages                                 | ✅ Done (draft, needs legal review) |
 | 7 — Lighthouse / WCAG / responsive pass                   | 🟡 In progress    |
 | 8 — Deploy to Vercel + DNS                                | ⏳ Pending        |

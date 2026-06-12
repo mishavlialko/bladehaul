@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
+    // Local-only Claude Design / reference dumps (not shipped):
+    '.claude-design-tmp*/**',
+    'references/**',
   ]),
 ]);
 
