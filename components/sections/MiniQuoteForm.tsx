@@ -105,10 +105,10 @@ export default function MiniQuoteForm() {
             <legend className="text-[11px] font-medium uppercase tracking-[0.18em] text-text-faint">
               Trailer
             </legend>
-            <div className="mt-1.5 grid grid-cols-2 gap-2">
+            <div className="mt-1.5 grid grid-cols-2 gap-1 rounded-xl bg-line-soft p-1 ring-1 ring-line">
               <label
                 htmlFor={trailerOpenId}
-                className="flex cursor-pointer items-center justify-center rounded-xl bg-line-soft/60 px-3 py-3 text-sm font-medium text-text ring-1 ring-line transition duration-200 ease-out-quart hover:bg-white has-[:checked]:bg-white has-[:checked]:ring-2 has-[:checked]:ring-orange"
+                className="group flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-medium text-text-dim transition-all duration-200 ease-out-quart hover:text-text has-[:checked]:bg-white has-[:checked]:text-text has-[:checked]:shadow-sm has-[:checked]:ring-1 has-[:checked]:ring-text/5"
               >
                 <input
                   id={trailerOpenId}
@@ -117,13 +117,17 @@ export default function MiniQuoteForm() {
                   name="trailer"
                   checked={trailer === 'open'}
                   onChange={() => setTrailer('open')}
-                  className="sr-only"
+                  className="peer sr-only"
                 />
-                Open
+                <span
+                  aria-hidden="true"
+                  className="h-1.5 w-1.5 rounded-full bg-orange opacity-0 transition-opacity duration-200 peer-checked:opacity-100"
+                />
+                <span>Open</span>
               </label>
               <label
                 htmlFor={trailerEnclosedId}
-                className="flex cursor-pointer items-center justify-center rounded-xl bg-line-soft/60 px-3 py-3 text-sm font-medium text-text ring-1 ring-line transition duration-200 ease-out-quart hover:bg-white has-[:checked]:bg-white has-[:checked]:ring-2 has-[:checked]:ring-orange"
+                className="group flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-medium text-text-dim transition-all duration-200 ease-out-quart hover:text-text has-[:checked]:bg-white has-[:checked]:text-text has-[:checked]:shadow-sm has-[:checked]:ring-1 has-[:checked]:ring-text/5"
               >
                 <input
                   id={trailerEnclosedId}
@@ -132,9 +136,13 @@ export default function MiniQuoteForm() {
                   name="trailer"
                   checked={trailer === 'enclosed'}
                   onChange={() => setTrailer('enclosed')}
-                  className="sr-only"
+                  className="peer sr-only"
                 />
-                Enclosed
+                <span
+                  aria-hidden="true"
+                  className="h-1.5 w-1.5 rounded-full bg-orange opacity-0 transition-opacity duration-200 peer-checked:opacity-100"
+                />
+                <span>Enclosed</span>
               </label>
             </div>
           </fieldset>
@@ -181,11 +189,16 @@ function FieldShell({
   htmlFor: string;
   children: React.ReactNode;
 }) {
+  // Label and input are siblings linked via htmlFor — nesting the input
+  // inside the label AND pointing htmlFor at it confuses screen readers.
   return (
-    <label htmlFor={htmlFor} className="block">
-      <span className="block text-[11px] font-medium uppercase tracking-[0.18em] text-text-faint">
+    <div>
+      <label
+        htmlFor={htmlFor}
+        className="block text-[11px] font-medium uppercase tracking-[0.18em] text-text-faint"
+      >
         {label}
-      </span>
+      </label>
       <div
         className={cn(
           'mt-1.5 rounded-xl bg-line-soft/60 ring-1 ring-line transition duration-200 ease-out-quart',
@@ -195,6 +208,6 @@ function FieldShell({
       >
         {children}
       </div>
-    </label>
+    </div>
   );
 }

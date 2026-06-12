@@ -56,6 +56,7 @@ export default function QuoteForm() {
       vehicleYear: '',
       vehicleMake: '',
       vehicleModel: '',
+      vin: '',
       readyDate: todayPlus(3),
       firstName: '',
       lastName: '',
@@ -169,7 +170,7 @@ export default function QuoteForm() {
   return (
     <section
       id="quote"
-      className="scroll-mt-64 bg-navy text-white sm:scroll-mt-72"
+      className="scroll-mt-28 bg-navy text-white sm:scroll-mt-48 md:scroll-mt-60"
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="mx-auto max-w-3xl">
@@ -255,7 +256,16 @@ export default function QuoteForm() {
                   )}
                 </div>
 
-                <p className="mt-6 text-center text-xs text-text-faint sm:text-left">
+                {step === 2 && (
+                  <p className="mt-6 text-xs leading-relaxed text-text-dim">
+                    By clicking Get my quote, you agree BladeHaul can contact
+                    you about your shipment by phone, text, or email at the
+                    contact info above. We never use robocalls or autodialers,
+                    and we never share your info. Message rates may apply.
+                  </p>
+                )}
+
+                <p className="mt-4 text-center text-xs text-text-faint sm:text-left">
                   No spam. No robocalls. A real person reads every quote
                   request.
                 </p>
@@ -286,21 +296,31 @@ function SuccessState() {
         Quote request received
       </h3>
       <p className="mt-4 text-base text-text-dim sm:text-lg">
-        Misha will email you a real quote within 2 hours. If you added a phone
-        number, you&apos;ll also get a text.
+        Misha will email you a real quote. If you added a phone number,
+        you&apos;ll also get a text.
       </p>
       <div className="mx-auto mt-8 max-w-md space-y-3 text-left text-sm text-text-dim">
-        <p className="font-semibold text-text">While you wait:</p>
-        <ol className="list-decimal space-y-2 pl-5">
-          <li>We pull current carrier rates for your exact route.</li>
+        <p className="font-semibold text-text">What happens now:</p>
+        <ul className="space-y-3">
           <li>
-            We email the quote with two pricing options if relevant (open and
-            enclosed).
+            <span className="font-semibold text-text">Right away:</span> Your
+            request lands with Misha. Not a queue, not a call center.
           </li>
           <li>
-            You reply with questions or to lock it in. Same person every time.
+            <span className="font-semibold text-text">
+              Within 2 business hours:
+            </span>{' '}
+            You get a real quote by email, based on live carrier rates for
+            your exact route. Requests sent overnight go out first thing the
+            next business morning.
           </li>
-        </ol>
+          <li>
+            <span className="font-semibold text-text">
+              When you&apos;re ready:
+            </span>{' '}
+            Reply to lock it in or ask anything. Same person, every time.
+          </li>
+        </ul>
       </div>
       <p className="mt-6 text-sm text-text-faint">
         Need to talk now? Email{' '}

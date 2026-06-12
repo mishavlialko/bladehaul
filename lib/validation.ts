@@ -1,6 +1,8 @@
 import { z } from 'zod';
 
-const OLDEST_YEAR = 1900;
+// Floor for the vehicle-year field. 1900 (not 1990) is deliberate: the FAQ
+// promises we ship classics. Shared with the year <select> in QuoteStepVehicle.
+export const OLDEST_YEAR = 1900;
 const NEWEST_YEAR = new Date().getFullYear() + 1;
 
 export const TRAILER_TYPES = ['open', 'enclosed'] as const;
@@ -33,6 +35,13 @@ export const quoteSchema = z.object({
   vehicleCondition: z.enum(VEHICLE_CONDITIONS, {
     message: 'Tell us if it runs',
   }),
+  // VIN is optional. Empty string is fine; if provided, must be the standard
+  // 17-character VIN format (no I, O, or Q per SAE J853).
+  vin: z
+    .string()
+    .regex(/^[A-HJ-NPR-Z0-9]{17}$/, 'VIN must be 17 characters (no I, O, or Q)')
+    .optional()
+    .or(z.literal('')),
   readyDate: z.string().regex(isoDateRegex, 'Pick a pickup date'),
   firstName: z.string().min(1, 'Enter a first name').max(40),
   lastName: z.string().min(1, 'Enter a last name').max(40),

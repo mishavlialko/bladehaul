@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { cn } from '@/lib/cn';
+import { Field, inputClass } from '@/components/sections/QuoteField';
 import { TRAILER_TYPES, type QuoteInput } from '@/lib/validation';
 
 type ZipLookup = { status: 'idle' | 'loading' | 'ok' | 'bad'; label?: string };
@@ -35,41 +35,24 @@ export default function QuoteStepRoute() {
   const pickupZip = useWatch({ control, name: 'pickupZip' }) ?? '';
   const deliveryZip = useWatch({ control, name: 'deliveryZip' }) ?? '';
 
-  const [zipCache, setZipCache] = useState<Record<string, string | 'not-found'>>(
-    {},
-  );
+  const [zipCache, setZipCache] = useState<
+    Record<string, string | 'not-found'>
+  >({});
+  // ZIPs already sent to the API. Lives in a ref so cache writes don't
+  // re-trigger the effect (the old version listed zipCache in the deps
+  // array and re-ran on every resolution).
+  const requestedZips = useRef(new Set<string>());
 
   useEffect(() => {
-    if (!/^\d{5}$/.test(pickupZip)) return;
-    if (zipCache[pickupZip] !== undefined) return;
-    let cancelled = false;
-    fetchCity(pickupZip).then((label) => {
-      if (cancelled) return;
-      setZipCache((prev) => ({
-        ...prev,
-        [pickupZip]: label ?? 'not-found',
-      }));
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [pickupZip, zipCache]);
-
-  useEffect(() => {
-    if (!/^\d{5}$/.test(deliveryZip)) return;
-    if (zipCache[deliveryZip] !== undefined) return;
-    let cancelled = false;
-    fetchCity(deliveryZip).then((label) => {
-      if (cancelled) return;
-      setZipCache((prev) => ({
-        ...prev,
-        [deliveryZip]: label ?? 'not-found',
-      }));
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [deliveryZip, zipCache]);
+    for (const zip of [pickupZip, deliveryZip]) {
+      if (!/^\d{5}$/.test(zip)) continue;
+      if (requestedZips.current.has(zip)) continue;
+      requestedZips.current.add(zip);
+      fetchCity(zip).then((label) => {
+        setZipCache((prev) => ({ ...prev, [zip]: label ?? 'not-found' }));
+      });
+    }
+  }, [pickupZip, deliveryZip]);
 
   const pickupLookup = lookupStatus(pickupZip, zipCache);
   const deliveryLookup = lookupStatus(deliveryZip, zipCache);
@@ -128,7 +111,7 @@ export default function QuoteStepRoute() {
         <legend className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-faint">
           Trailer type
         </legend>
-        <div className="mt-2 grid grid-cols-2 gap-3">
+        <div className="mt-2 grid grid-cols-2 gap-1 rounded-xl bg-line-soft p-1 ring-1 ring-line">
           {TRAILER_TYPES.map((value) => {
             const id = value === 'open' ? trailerOpenId : trailerEnclosedId;
             const label = value === 'open' ? 'Open' : 'Enclosed';
@@ -136,14 +119,18 @@ export default function QuoteStepRoute() {
               <label
                 key={value}
                 htmlFor={id}
-                className="group relative flex cursor-pointer items-center justify-center rounded-xl bg-line-soft/60 px-4 py-3.5 text-base font-medium text-text ring-1 ring-line transition duration-200 ease-out-quart hover:bg-white has-[:checked]:bg-white has-[:checked]:ring-2 has-[:checked]:ring-orange"
+                className="group flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-medium text-text-dim transition-all duration-200 ease-out-quart hover:text-text has-[:checked]:bg-white has-[:checked]:text-text has-[:checked]:shadow-sm has-[:checked]:ring-1 has-[:checked]:ring-text/5"
               >
                 <input
                   id={id}
                   type="radio"
                   value={value}
-                  className="sr-only"
+                  className="peer sr-only"
                   {...register('trailerType')}
+                />
+                <span
+                  aria-hidden="true"
+                  className="h-1.5 w-1.5 rounded-full bg-orange opacity-0 transition-opacity duration-200 peer-checked:opacity-100"
                 />
                 <span>{label}</span>
               </label>
@@ -175,41 +162,6 @@ function lookupStatus(
   return { status: 'ok', label: cached };
 }
 
-function inputClass(hasError: boolean) {
-  return cn(
-    'block h-12 w-full rounded-xl bg-line-soft/60 px-4 text-base text-text ring-1 ring-line transition duration-200 ease-out-quart placeholder:text-text-faint/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange/40',
-    hasError && 'ring-orange/60 focus:ring-orange',
-  );
-}
-
-type FieldProps = {
-  id: string;
-  label: string;
-  error?: string;
-  readout?: React.ReactNode;
-  children: React.ReactNode;
-};
-
-function Field({ id, label, error, readout, children }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label
-        htmlFor={id}
-        className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-faint"
-      >
-        {label}
-      </label>
-      {children}
-      {readout}
-      {error && (
-        <p role="alert" className="text-xs font-medium text-orange-dark">
-          {error}
-        </p>
-      )}
-    </div>
-  );
-}
-
 type ZipReadoutProps = { lookup: ZipLookup };
 
 function ZipReadout({ lookup }: ZipReadoutProps) {
@@ -223,9 +175,7 @@ function ZipReadout({ lookup }: ZipReadoutProps) {
     );
   }
   if (lookup.status === 'ok') {
-    return (
-      <p className="text-xs font-medium text-text-dim">{lookup.label}</p>
-    );
+    return <p className="text-xs font-medium text-text-dim">{lookup.label}</p>;
   }
   return (
     <p className="text-xs text-orange-dark">

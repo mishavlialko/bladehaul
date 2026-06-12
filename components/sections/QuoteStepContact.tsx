@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useId, useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { cn } from '@/lib/cn';
+import { Field, inputClass } from '@/components/sections/QuoteField';
 import { formatUSPhone } from '@/lib/phone';
 import { type QuoteInput } from '@/lib/validation';
 
@@ -96,7 +96,7 @@ export default function QuoteStepContact() {
       <Field
         id={phoneId}
         label="Phone (optional)"
-        helper="Add this if you want a same-day call. We text the quote either way."
+        helper="Add this for a same-day call and text update. Without it, the quote comes by email only."
         error={errors.phone?.message}
       >
         <Controller
@@ -108,7 +108,7 @@ export default function QuoteStepContact() {
               type="tel"
               inputMode="tel"
               autoComplete="tel"
-              placeholder="(555) 123-4567"
+              placeholder="+1 (555) 123-4567"
               aria-invalid={!!errors.phone}
               value={field.value ?? ''}
               onChange={(e) =>
@@ -140,38 +140,3 @@ export default function QuoteStepContact() {
   );
 }
 
-function inputClass(hasError: boolean) {
-  return cn(
-    'block h-12 w-full rounded-xl bg-line-soft/60 px-4 text-base text-text ring-1 ring-line transition duration-200 ease-out-quart placeholder:text-text-faint/70 focus:bg-white focus:outline-none focus:ring-2 focus:ring-orange/40',
-    hasError && 'ring-orange/60 focus:ring-orange',
-  );
-}
-
-type FieldProps = {
-  id: string;
-  label: string;
-  helper?: string;
-  error?: string;
-  children: React.ReactNode;
-};
-
-function Field({ id, label, helper, error, children }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      <label
-        htmlFor={id}
-        className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-faint"
-      >
-        {label}
-      </label>
-      {children}
-      {error ? (
-        <p role="alert" className="text-xs font-medium text-orange-dark">
-          {error}
-        </p>
-      ) : helper ? (
-        <p className="text-xs text-text-faint">{helper}</p>
-      ) : null}
-    </div>
-  );
-}
