@@ -5,6 +5,9 @@ import Container from '@/components/shared/Container';
 type Pair = {
   bad: string;
   good: string;
+  // Optional named-mechanism label, rendered as a mono micro-tag above the
+  // BladeHaul cell (e.g. "The Written Price Rule").
+  tag?: string;
 };
 
 const pairs: Pair[] = [
@@ -19,6 +22,7 @@ const pairs: Pair[] = [
   {
     bad: 'Call you the day before pickup demanding more money',
     good: 'If the price changes, we explain why and give you two options in writing',
+    tag: 'The Written Price Rule',
   },
   {
     bad: 'Different person every time you call',
@@ -78,6 +82,11 @@ export default function Comparison() {
                   <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange sm:sr-only">
                     BladeHaul
                   </span>
+                  {pair.tag && (
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-orange/90">
+                      [{pair.tag}]
+                    </span>
+                  )}
                   <p className="text-base font-medium leading-relaxed text-white sm:text-[17px]">
                     {pair.good}
                   </p>
