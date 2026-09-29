@@ -4,11 +4,25 @@ import Container from '@/components/shared/Container';
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 
+const TERMS_TITLE = 'Website Terms';
+const TERMS_DESCRIPTION =
+  'Simple terms for using the BladeHaul website while we prepare to take vehicle transport quote requests.';
+const TERMS_URL = 'https://bladehaul.com/terms';
+
 export const metadata: Metadata = {
-  title: 'Website Terms',
-  description:
-    'Simple terms for using the BladeHaul website and requesting a free vehicle transport quote.',
+  title: TERMS_TITLE,
+  description: TERMS_DESCRIPTION,
   alternates: { canonical: '/terms' },
+  openGraph: {
+    title: TERMS_TITLE,
+    description: TERMS_DESCRIPTION,
+    url: TERMS_URL,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TERMS_TITLE,
+    description: TERMS_DESCRIPTION,
+  },
 };
 
 const UPDATED_DATE = 'September 29, 2026';

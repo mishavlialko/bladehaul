@@ -4,11 +4,25 @@ import Container from '@/components/shared/Container';
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 
+const PRIVACY_TITLE = 'Privacy Policy';
+const PRIVACY_DESCRIPTION =
+  'What BladeHaul collects through a quote request, how we use it, and your privacy choices.';
+const PRIVACY_URL = 'https://bladehaul.com/privacy';
+
 export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description:
-    'What BladeHaul collects through a quote request, how we use it, and your privacy choices.',
+  title: PRIVACY_TITLE,
+  description: PRIVACY_DESCRIPTION,
   alternates: { canonical: '/privacy' },
+  openGraph: {
+    title: PRIVACY_TITLE,
+    description: PRIVACY_DESCRIPTION,
+    url: PRIVACY_URL,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: PRIVACY_TITLE,
+    description: PRIVACY_DESCRIPTION,
+  },
 };
 
 const UPDATED_DATE = 'September 29, 2026';

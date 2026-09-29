@@ -13,34 +13,50 @@ import TrustStrip from '@/components/sections/TrustStrip';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bladehaul.com';
 
+const organizationId = `${SITE_URL}/#organization`;
+const websiteId = `${SITE_URL}/#website`;
+
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'BladeHaul Auto Transport',
-  legalName: 'BladeHaul Auto Transport LLC',
-  url: SITE_URL,
-  email: 'info@bladehaul.com',
-  description:
-    'Texas company preparing US car shipping brokerage. Request a quote — same-agent service, daily updates, and clear options once we are authorized to operate. No deposit on this website.',
-  areaServed: {
-    '@type': 'Country',
-    name: 'United States',
-  },
-  knowsAbout: [
-    'Open trailer auto transport',
-    'Enclosed trailer auto transport',
-    'Door-to-door car shipping',
-    'Classic and exotic vehicle transport',
-    'Non-running vehicle transport',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': websiteId,
+      name: 'BladeHaul Auto Transport',
+      url: SITE_URL,
+      publisher: { '@id': organizationId },
+      about: { '@id': organizationId },
+    },
+    {
+      '@type': 'Organization',
+      '@id': organizationId,
+      name: 'BladeHaul Auto Transport',
+      legalName: 'BladeHaul Auto Transport LLC',
+      url: SITE_URL,
+      email: 'info@bladehaul.com',
+      description:
+        'Texas company preparing US car shipping brokerage. Request a quote — same-agent service, daily updates, and clear options once we are authorized to operate. No deposit on this website.',
+      areaServed: {
+        '@type': 'Country',
+        name: 'United States',
+      },
+      knowsAbout: [
+        'Open trailer auto transport',
+        'Enclosed trailer auto transport',
+        'Door-to-door car shipping',
+        'Classic and exotic vehicle transport',
+        'Non-running vehicle transport',
+      ],
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: 'US',
+        streetAddress: '11816 Inwood Rd, #1171',
+        addressLocality: 'Dallas',
+        addressRegion: 'TX',
+        postalCode: '75244',
+      },
+    },
   ],
-  address: {
-    '@type': 'PostalAddress',
-    addressCountry: 'US',
-    streetAddress: '11816 Inwood Rd, #1171',
-    addressLocality: 'Dallas',
-    addressRegion: 'TX',
-    postalCode: '75244',
-  },
 };
 
 export default function Home() {
