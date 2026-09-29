@@ -43,8 +43,10 @@ export default function TermsPage() {
             <Section title="About BladeHaul">
               <p>
                 BladeHaul Auto Transport LLC is a Texas limited liability
-                company. Our role is to arrange vehicle transportation as a
-                broker. The independent motor carrier you approve handles the
+                company. We are preparing to arrange vehicle transportation as a
+                property broker. Our FMCSA broker authority application is
+                Pending and is not currently AUTHORIZED. When we book a
+                shipment, the independent motor carrier you approve handles the
                 physical transportation.
               </p>
             </Section>

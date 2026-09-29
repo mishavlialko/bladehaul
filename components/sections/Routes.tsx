@@ -20,7 +20,7 @@ export default function Routes() {
             <span className="text-white/60">10 ROUTES</span>
           </p>
           <h2 className="mt-4 font-display text-3xl font-semibold leading-[1.02] tracking-[-0.03em] sm:text-4xl lg:text-5xl">
-            We ship coast to coast
+            Coast-to-coast routes
           </h2>
           <div className="mt-5 space-y-1 text-lg text-white/65">
             <p>Explore popular coast-to-coast and seasonal routes.</p>

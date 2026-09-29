@@ -21,7 +21,7 @@ const jsonLd = {
   url: SITE_URL,
   email: 'info@bladehaul.com',
   description:
-    'US car shipping brokerage with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed.',
+    'Texas company preparing US car shipping brokerage. Request a quote — same-agent service, daily updates, and clear options once we are authorized to operate. No deposit on this website.',
   areaServed: {
     '@type': 'Country',
     name: 'United States',

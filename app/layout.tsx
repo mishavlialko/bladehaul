@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     'auto transport',
     'car shipping',
     'vehicle shipping',
-    'auto transport broker',
+    'car shipping quotes',
     'coast to coast car shipping',
     'open trailer transport',
     'enclosed trailer transport',
