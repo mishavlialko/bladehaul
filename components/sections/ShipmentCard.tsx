@@ -1,90 +1,126 @@
-'use client';
-
-import { useEffect, useState } from 'react';
-import { type Shipment } from '@/lib/shipments';
+import { cn } from '@/lib/cn';
+import { type ShipmentPreview } from '@/lib/shipments';
 
 type Props = {
-  shipment: Shipment;
-  // Front card animates the progress marker + shows the In transit ping.
-  // Back cards skip those — they're decorative texture, not data.
-  interactive?: boolean;
+  shipment: ShipmentPreview;
+  activeIndex: number;
+  count: number;
+  onNext: () => void;
+  ready?: boolean;
 };
 
-export default function ShipmentCard({ shipment, interactive = true }: Props) {
-  // Decorative back cards render at final progress with no animation;
-  // only the front card starts at 0 and slides its marker into place.
-  const [animatedProgress, setAnimatedProgress] = useState(
-    interactive ? 0 : shipment.progress,
-  );
-
-  useEffect(() => {
-    if (!interactive) return;
-    const t = window.setTimeout(
-      () => setAnimatedProgress(shipment.progress),
-      120,
-    );
-    return () => window.clearTimeout(t);
-  }, [shipment.progress, interactive]);
-
+export default function ShipmentCard({
+  shipment,
+  activeIndex,
+  count,
+  onNext,
+  ready = true,
+}: Props) {
   return (
-    <div className="relative rounded-[1.25rem] bg-white/[0.04] p-1.5 ring-1 ring-white/10">
-      <div className="rounded-[calc(1.25rem-0.375rem)] bg-dark/85 p-4 backdrop-blur-sm sm:p-5">
-        <div className="flex items-baseline justify-between gap-3">
-          <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-white/45">
+    <div
+      data-ready={ready}
+      className="shipment-example rounded-xl bg-white/[0.04] p-1.5 ring-1 ring-white/10"
+    >
+      <div className="rounded-lg bg-dark/95 p-5">
+        <div className="flex min-h-5 items-center justify-between gap-3">
+          <p className="whitespace-nowrap font-mono text-[10px] font-medium uppercase tracking-[0.2em] text-white/60">
             Example shipment
-          </span>
-          <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.16em] text-white/65">
-            {interactive ? (
-              <span className="relative flex h-1.5 w-1.5">
-                <span
-                  aria-hidden="true"
-                  className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange opacity-60"
-                />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-orange" />
-              </span>
-            ) : (
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 rounded-full bg-orange"
-              />
-            )}
-            In transit
-          </span>
+          </p>
+          <div
+            aria-hidden={!ready}
+            className="shipment-example-content flex shrink-0 items-center gap-2 font-mono text-[9px] font-medium uppercase tracking-[0.12em] text-white/70"
+          >
+            <span className="text-white/40">
+              {activeIndex + 1} / {count}
+            </span>
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-orange"
+            />
+            <span className="whitespace-nowrap">{shipment.status}</span>
+          </div>
         </div>
 
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex min-w-0 flex-col">
-            <span className="text-sm font-semibold tracking-tight text-white">
+        <div
+          aria-hidden={!ready}
+          className="shipment-example-content mt-4 grid grid-cols-[minmax(0,1fr)_minmax(5rem,1.05fr)_minmax(0,1fr)] items-center gap-3"
+        >
+          <div className="min-w-0">
+            <p className="flex min-h-9 items-center text-sm font-semibold leading-tight tracking-tight text-white">
               {shipment.fromCity}
-            </span>
-            <span className="text-[10px] text-white/45">
+            </p>
+            <p className="font-mono text-[10px] tabular-nums text-white/60">
               {shipment.fromZip}
-            </span>
+            </p>
           </div>
-          <div aria-hidden="true" className="flex flex-1 items-center gap-1.5">
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-white/60" />
-            <div className="relative h-px flex-1">
-              <span className="absolute inset-0 bg-gradient-to-r from-white/40 via-white/20 to-white/10" />
-              <span
-                style={{ left: `${animatedProgress * 100}%` }}
-                className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 transition-[left] duration-[1200ms] ease-out-quart motion-reduce:transition-none"
-              >
-                <span className="block h-2 w-2 rounded-full bg-orange shadow-[0_0_10px_rgba(234,106,17,0.7)]" />
-              </span>
+
+          <div aria-hidden="true" className="relative h-4 min-w-0">
+            <span className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-white/15" />
+            <div className="relative grid h-full grid-cols-4 items-center">
+              {([0, 1, 2, 3] as const).map((stage) => (
+                <span
+                  key={stage}
+                  className={cn(
+                    'relative z-10 mx-auto h-2 w-2 rounded-full border',
+                    stage < shipment.stage && 'border-white/70 bg-white/70',
+                    stage === shipment.stage &&
+                      'border-orange bg-orange ring-4 ring-orange/15',
+                    stage > shipment.stage && 'border-white/35 bg-dark',
+                  )}
+                />
+              ))}
             </div>
-            <span className="h-1.5 w-1.5 shrink-0 rounded-full border border-white/40" />
           </div>
-          <div className="flex min-w-0 flex-col items-end text-right">
-            <span className="text-sm font-semibold tracking-tight text-white">
+
+          <div className="min-w-0 text-right">
+            <p className="flex min-h-9 items-center justify-end text-sm font-semibold leading-tight tracking-tight text-white">
               {shipment.toCity}
-            </span>
-            <span className="text-[10px] text-white/45">{shipment.toZip}</span>
+            </p>
+            <p className="font-mono text-[10px] tabular-nums text-white/60">
+              {shipment.toZip}
+            </p>
           </div>
         </div>
 
-        <p className="mt-4 border-t border-white/5 pt-3 text-xs text-white/75">
-          {shipment.vehicle} · Open transport
-        </p>
+        <div
+          aria-hidden={!ready}
+          className="shipment-example-content mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-t border-white/10 pt-3"
+        >
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium tracking-tight text-white/90">
+              {shipment.vehicle}
+            </p>
+            <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[0.12em] text-white/60">
+              {shipment.transport}
+              <span aria-hidden="true" className="px-1.5 text-white/25">
+                /
+              </span>
+              {shipment.detail}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Show next example shipment"
+            disabled={!ready}
+            onClick={onNext}
+            className="group flex min-h-11 items-center gap-2 px-1 font-mono text-[10px] uppercase tracking-[0.12em] text-white/55 transition-colors duration-150 ease-out hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+          >
+            Next
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-3.5 w-3.5 transition-transform duration-150 ease-out group-hover:translate-x-0.5 motion-reduce:transition-none"
+            >
+              <path d="M3 8h10M9 4l4 4-4 4" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );

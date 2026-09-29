@@ -53,13 +53,7 @@ export default function Logo({
 
   const img = (
     // eslint-disable-next-line @next/next/no-img-element -- SVG, no optimization needed
-    <img
-      src="/logo.svg"
-      alt=""
-      width={w}
-      height={h}
-      className="block"
-    />
+    <img src="/logo.svg" alt="" width={w} height={h} className="block" />
   );
 
   if (!href) {

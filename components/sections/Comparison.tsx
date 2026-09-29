@@ -5,32 +5,28 @@ import Container from '@/components/shared/Container';
 type Pair = {
   bad: string;
   good: string;
-  // Optional named-mechanism label, rendered as a mono micro-tag above the
-  // BladeHaul cell (e.g. "The Written Price Rule").
-  tag?: string;
 };
 
 const pairs: Pair[] = [
   {
-    bad: "Quote you a low price they can't actually deliver",
-    good: 'We quote you the real market price for your route today',
+    bad: 'A quote that does not match available carriers',
+    good: 'We check the current market for your route and vehicle',
   },
   {
-    bad: 'Go silent after taking your deposit',
+    bad: 'Silence after booking',
     good: 'Daily updates from the day you book until delivery',
   },
   {
-    bad: 'Call you the day before pickup demanding more money',
-    good: 'If the price changes, we explain why and give you two options in writing',
-    tag: 'The Written Price Rule',
+    bad: 'Pressure to make a last-minute decision',
+    good: 'We explain what changed and your options. You decide what happens next.',
   },
   {
     bad: 'Different person every time you call',
-    good: 'Same dispatcher handles your order from quote to driveway',
+    good: 'Your agent handles your order from quote to driveway.',
   },
   {
-    bad: 'Leave you guessing who is actually moving your car',
-    good: 'We only work with carriers we have personally vetted',
+    bad: 'Unclear information about who is moving your car',
+    good: 'We check carrier identity, authority, and insurance before assignment',
   },
 ];
 
@@ -39,7 +35,7 @@ export default function Comparison() {
     <section className="bg-navy text-white">
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold leading-[1.02] tracking-[-0.03em] sm:text-4xl lg:text-5xl">
             How we&apos;re different
           </h2>
           <p className="mt-5 text-lg text-white/65">
@@ -48,8 +44,8 @@ export default function Comparison() {
         </div>
 
         <div className="mt-14 grid gap-x-12 sm:grid-cols-2 lg:mt-20">
-          <p className="hidden border-b border-white/10 pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/45 sm:block">
-            Other brokers
+          <p className="hidden border-b border-white/10 pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55 sm:block">
+            Common frustrations
           </p>
           <p className="hidden border-b border-white/10 pb-4 text-[11px] font-semibold uppercase tracking-[0.22em] text-orange sm:block">
             BladeHaul
@@ -61,11 +57,11 @@ export default function Comparison() {
                 <X
                   aria-hidden="true"
                   strokeWidth={1.75}
-                  className="mt-0.5 h-5 w-5 shrink-0 text-white/40"
+                  className="mt-0.5 h-5 w-5 shrink-0 text-white/55"
                 />
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/45 sm:sr-only">
-                    Other brokers
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55 sm:sr-only">
+                    Common frustrations
                   </span>
                   <p className="text-base leading-relaxed text-white/60 sm:text-[17px]">
                     {pair.bad}
@@ -82,11 +78,6 @@ export default function Comparison() {
                   <span className="text-[10px] font-semibold uppercase tracking-[0.22em] text-orange sm:sr-only">
                     BladeHaul
                   </span>
-                  {pair.tag && (
-                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-orange/90">
-                      [{pair.tag}]
-                    </span>
-                  )}
                   <p className="text-base font-medium leading-relaxed text-white sm:text-[17px]">
                     {pair.good}
                   </p>

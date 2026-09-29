@@ -1,104 +1,112 @@
-import { randomUUID } from 'node:crypto';
-import { NextResponse } from 'next/server';
+import { after, NextResponse } from 'next/server';
 import { quoteSchema } from '@/lib/validation';
+import { createQuoteBlobStore } from '@/lib/quote-blob-store';
+import {
+  getQuoteEmailConfig,
+  getQuoteStorageConfig,
+  quoteAllowedOrigins,
+} from '@/lib/quote-config';
+import { enqueueQuote, processQuote } from '@/lib/quote-outbox';
+import { hasTrustedOrigin, readQuoteBody } from '@/lib/quote-request';
+import { createResendProvider } from './delivery';
 
-const RATE_LIMIT_MAX = 5;
-const RATE_LIMIT_WINDOW_MS = 60_000;
+export const runtime = 'nodejs';
+export const maxDuration = 60;
 
-type Bucket = { count: number; resetAt: number };
-const buckets = new Map<string, Bucket>();
-
-function getClientIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for');
-  if (forwarded) return forwarded.split(',')[0].trim();
-  const real = req.headers.get('x-real-ip');
-  if (real) return real.trim();
-  return 'unknown';
+function response(body: Record<string, unknown>, status: number) {
+  return NextResponse.json(body, {
+    status,
+    headers: {
+      'Cache-Control': 'private, no-store',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
 }
 
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now();
-  const bucket = buckets.get(ip);
-  if (!bucket || bucket.resetAt < now) {
-    buckets.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (bucket.count >= RATE_LIMIT_MAX) return false;
-  bucket.count += 1;
-  return true;
-}
-
-async function notify(payload: Record<string, unknown>): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const adminEmail = process.env.ADMIN_EMAIL;
-
-  if (!apiKey || !adminEmail) {
-    console.log('[quote] Resend not configured, skipping email notify.');
-    return;
-  }
-
-  try {
-    const { Resend } = await import('resend');
-    const resend = new Resend(apiKey);
-    await resend.emails.send({
-      from: 'BladeHaul <quotes@bladehaul.com>',
-      to: adminEmail,
-      subject: `New quote request: ${payload.pickupZip} → ${payload.deliveryZip}`,
-      text: JSON.stringify(payload, null, 2),
-    });
-  } catch (err) {
-    console.error('[quote] Email notify failed:', err);
-  }
-
-  const webhookUrl = process.env.BEROCKER_WEBHOOK_URL;
-  if (webhookUrl) {
-    try {
-      await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-    } catch (err) {
-      console.error('[quote] BeRocker webhook failed:', err);
-    }
-  }
+function unavailable() {
+  return response(
+    {
+      success: false,
+      error:
+        'We could not save your request. Please try again or email info@bladehaul.com.',
+    },
+    503,
+  );
 }
 
 export async function POST(req: Request) {
-  const ip = getClientIp(req);
-
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json(
-      { error: 'Too many requests. Please try again in a minute.' },
-      { status: 429 },
-    );
+  // Credentials alone never activate intake. The owner enables this only
+  // after authority, delivery, and Vercel WAF checks are documented.
+  if (process.env.QUOTE_INTAKE_ENABLED !== 'true') return unavailable();
+  try {
+    if (!hasTrustedOrigin(req, quoteAllowedOrigins(req.url)))
+      return response(
+        { success: false, error: 'Please use the quote form on this site.' },
+        403,
+      );
+  } catch {
+    return unavailable();
   }
-
   let body: unknown;
   try {
-    body = await req.json();
+    body = await readQuoteBody(req);
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const parsed = quoteSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: 'Validation failed', issues: parsed.error.flatten() },
-      { status: 400 },
+    return response(
+      { success: false, error: 'Please check your request and try again.' },
+      400,
     );
   }
-
-  const quoteId = randomUUID();
-  const record = {
-    quoteId,
-    ...parsed.data,
-    receivedAt: new Date().toISOString(),
-  };
-
-  console.log('[quote] received', record);
-
-  await notify(record);
-
-  return NextResponse.json({ success: true, quoteId });
+  const parsed = quoteSchema.safeParse(body);
+  if (!parsed.success)
+    return response(
+      {
+        success: false,
+        error: 'Please check the highlighted details.',
+        issues: parsed.error.flatten(),
+      },
+      400,
+    );
+  const { requestId, website, ...quote } = parsed.data;
+  if (website)
+    return response(
+      { success: false, error: 'Please check your request and try again.' },
+      400,
+    );
+  try {
+    const { namespace, storeId } = getQuoteStorageConfig();
+    const email = getQuoteEmailConfig();
+    const store = createQuoteBlobStore(storeId, namespace);
+    const result = await enqueueQuote(
+      store,
+      namespace,
+      requestId,
+      quote,
+      email,
+    );
+    if (result.kind === 'conflict')
+      return response(
+        {
+          success: false,
+          error: 'This request was changed. Please send it again.',
+        },
+        409,
+      );
+    after(async () => {
+      try {
+        await processQuote(
+          { store, namespace, provider: createResendProvider(email.apiKey) },
+          requestId,
+        );
+      } catch {
+        // The accepted request is already durable; cron will recover it.
+        console.error('[quote] background_delivery_unavailable', {
+          quoteId: requestId,
+        });
+      }
+    });
+    return response({ success: true, quoteId: requestId }, 202);
+  } catch {
+    console.error('[quote] durable_acceptance_unavailable');
+    return unavailable();
+  }
 }

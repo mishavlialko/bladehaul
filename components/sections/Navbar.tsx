@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import Button from '@/components/shared/Button';
 import Container from '@/components/shared/Container';
 import Logo from '@/components/shared/Logo';
 
 const navLinks = [
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'Routes', href: '#routes' },
-  { label: 'FAQ', href: '#faq' },
-  { label: 'About', href: '#about' },
+  { label: 'How It Works', href: '/#how-it-works' },
+  { label: 'Routes', href: '/#routes' },
+  { label: 'FAQ', href: '/#faq' },
+  { label: 'About', href: '/#about' },
 ];
 
 // 4px threshold avoids toggling on micro-scrolls (touch jitter, trackpad inertia tail).
@@ -23,6 +23,15 @@ export default function Navbar() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  const restoreTriggerFocus = useRef(true);
+
+  function closeForNavigation(event: MouseEvent<HTMLAnchorElement>) {
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)
+      return;
+    restoreTriggerFocus.current = false;
+    setMenuOpen(false);
+  }
 
   useEffect(() => {
     let lastY = window.scrollY || 0;
@@ -93,6 +102,20 @@ export default function Navbar() {
     }
   }, [menuOpen]);
 
+  // Keep assistive technology and pointer/keyboard navigation out of the
+  // obscured page while the modal menu is open.
+  useEffect(() => {
+    const pageRoots = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        'body > a[href="#main"], header, main, footer',
+      ),
+    );
+    for (const root of pageRoots) root.inert = menuOpen;
+    return () => {
+      for (const root of pageRoots) root.inert = false;
+    };
+  }, [menuOpen]);
+
   // Keyboard handling while the menu is open: ESC closes, Tab cycles inside
   // the panel (focus trap — keyboard users can't tab into the page behind
   // the modal overlay).
@@ -132,18 +155,32 @@ export default function Navbar() {
       closeButtonRef.current?.focus();
     } else if (wasOpenRef.current) {
       wasOpenRef.current = false;
-      triggerRef.current?.focus();
+      if (!restoreTriggerFocus.current) return;
+      const focusTimerId = window.setTimeout(() => {
+        const trigger = triggerRef.current;
+        if (trigger && trigger.getClientRects().length > 0) {
+          trigger.focus();
+          return;
+        }
+        const logo = Array.from(
+          headerRef.current?.querySelectorAll<HTMLElement>(
+            '[aria-label="BladeHaul home"]',
+          ) ?? [],
+        ).find((element) => element.getClientRects().length > 0);
+        logo?.focus();
+      }, 100);
+      return () => window.clearTimeout(focusTimerId);
     }
   }, [menuOpen]);
 
-  // If the viewport crosses the sm breakpoint while the menu is open
+  // If the viewport crosses the lg breakpoint while the menu is open
   // (rotation, window resize), close it — otherwise body scroll stays
-  // locked behind an overlay that sm:hidden just made invisible. The
-  // hamburger is hidden ≥sm, so the menu can't be opened there; only the
+  // locked behind an overlay that lg:hidden just made invisible. The
+  // hamburger is hidden ≥lg, so the menu can't be opened there; only the
   // live crossing needs handling.
   useEffect(() => {
     if (!menuOpen) return;
-    const mq = window.matchMedia('(min-width: 640px)');
+    const mq = window.matchMedia('(min-width: 1024px)');
     function onChange(e: MediaQueryListEvent) {
       if (e.matches) setMenuOpen(false);
     }
@@ -154,24 +191,25 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 border-b border-line bg-paper [padding-top:env(safe-area-inset-top)] transform-gpu transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform motion-reduce:transition-none md:bg-paper/95 md:backdrop-blur md:supports-[backdrop-filter]:bg-paper/85 ${
+        ref={headerRef}
+        className={`fixed inset-x-0 top-0 z-50 transform-gpu border-b border-line bg-paper transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform [padding-top:env(safe-area-inset-top)] motion-reduce:transition-none ${
           hidden && !menuOpen ? '-translate-y-full' : 'translate-y-0'
         }`}
       >
         {/* Top utility strip — hidden on mobile. */}
-        <div className="hidden border-b border-line md:block">
+        <div className="hidden border-b border-line lg:block">
           <Container className="flex h-10 items-center justify-between gap-6 font-mono text-[10px] uppercase tracking-[0.16em]">
             <p className="flex items-center gap-2 text-text-faint">
               <span className="font-semibold text-text-dim">BLADEHAUL</span>
               <span aria-hidden="true">·</span>
-              <span>WYOMING LLC</span>
+              <span>AUTO TRANSPORT</span>
               <span aria-hidden="true">·</span>
-              <span className="text-text-faint/70">[N43&deg; W107&deg;]</span>
+              <span>[DOOR TO DOOR]</span>
             </p>
             <p className="flex items-center gap-2 text-text-faint">
               <span>COAST TO COAST</span>
               <span aria-hidden="true">·</span>
-              <span className="text-text-dim">HONEST QUOTES IN &lt; 4H</span>
+              <span className="text-text-dim">Your route. Your quote.</span>
               <span aria-hidden="true">·</span>
               <a
                 href="mailto:info@bladehaul.com"
@@ -187,19 +225,19 @@ export default function Navbar() {
         <Container
           as="nav"
           aria-label="Primary"
-          className="flex h-20 items-center justify-between sm:h-40"
+          className="flex h-20 items-center justify-between lg:h-28"
         >
-          <Logo size="lg" priority className="sm:hidden" />
-          <Logo size="2xl" priority className="hidden sm:inline-block" />
+          <Logo size="lg" priority className="lg:hidden" />
+          <Logo size="xl" priority className="hidden lg:inline-block" />
 
           {/* Hash links are plain <a>: next/link skips the scroll when the
               hash is already in the URL (repeat clicks went dead). */}
-          <ul className="hidden items-center gap-10 sm:flex">
+          <ul className="hidden items-center gap-8 lg:flex">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="text-base font-medium text-text-dim transition-colors hover:text-text sm:text-lg"
+                  className="inline-flex min-h-11 min-w-11 items-center justify-center text-base font-medium text-text-dim transition-colors hover:text-text"
                 >
                   {link.label}
                 </a>
@@ -208,9 +246,9 @@ export default function Navbar() {
           </ul>
 
           <Button
-            href="#quote"
+            href="/#quote"
             size="lg"
-            className="hidden sm:inline-flex sm:h-16 sm:px-8 sm:text-xl"
+            className="hidden lg:inline-flex lg:h-14 lg:px-7 lg:text-lg"
           >
             Get a Real Quote
           </Button>
@@ -219,11 +257,14 @@ export default function Navbar() {
           <button
             ref={triggerRef}
             type="button"
-            onClick={() => setMenuOpen(true)}
+            onClick={() => {
+              restoreTriggerFocus.current = true;
+              setMenuOpen(true);
+            }}
             aria-label="Open menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
-            className="-mr-2 grid h-12 w-12 place-items-center sm:hidden"
+            className="-mr-2 grid h-12 w-12 place-items-center lg:hidden"
           >
             <span className="relative block h-[14px] w-7">
               <span className="absolute left-0 top-0 block h-[2px] w-7 bg-text" />
@@ -234,19 +275,21 @@ export default function Navbar() {
         </Container>
       </header>
 
-      {/* Mobile menu overlay. */}
+      {/* `hidden` keeps the closed off-canvas panel from enlarging Chrome's
+          mobile layout viewport while preserving the open-state dialog. */}
       <div
         id="mobile-menu"
-        className={`fixed inset-0 z-[60] sm:hidden ${
-          menuOpen ? 'pointer-events-auto' : 'pointer-events-none'
-        }`}
+        className={
+          menuOpen ? 'fixed inset-0 z-[60] overflow-hidden lg:hidden' : 'hidden'
+        }
         aria-hidden={!menuOpen}
       >
         {/* Backdrop. */}
         <button
           type="button"
           aria-label="Close menu"
-          tabIndex={menuOpen ? 0 : -1}
+          aria-hidden="true"
+          tabIndex={-1}
           onClick={() => setMenuOpen(false)}
           className={`absolute inset-0 bg-black/50 transition-opacity duration-300 ${
             menuOpen ? 'opacity-100' : 'opacity-0'
@@ -259,13 +302,13 @@ export default function Navbar() {
           role="dialog"
           aria-modal="true"
           aria-label="Site navigation"
-          className={`absolute right-0 top-0 flex h-full w-full flex-col bg-navy text-white transform-gpu transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform motion-reduce:transition-none ${
+          className={`absolute right-0 top-0 flex h-full w-full transform-gpu flex-col bg-navy text-white transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-transform motion-reduce:transition-none ${
             menuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           {/* Panel header. */}
-          <div className="flex items-center justify-between border-b border-white/10 px-6 [padding-top:calc(env(safe-area-inset-top)+1.25rem)] pb-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+          <div className="flex items-center justify-between border-b border-white/10 px-6 pb-5 [padding-top:calc(env(safe-area-inset-top)+1.25rem)]">
+            <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
               <span className="text-white/70">NAVIGATION</span>
               <span className="mx-2 text-white/30" aria-hidden="true">
                 {'//'}
@@ -288,7 +331,10 @@ export default function Navbar() {
           </div>
 
           {/* Nav links. */}
-          <nav className="flex-1 overflow-y-auto px-6 py-4">
+          <nav
+            aria-label="Mobile navigation"
+            className="flex-1 overflow-y-auto px-6 py-4"
+          >
             <ul>
               {navLinks.map((link, i) => (
                 <li
@@ -297,11 +343,11 @@ export default function Navbar() {
                 >
                   <a
                     href={link.href}
-                    onClick={() => setMenuOpen(false)}
+                    onClick={closeForNavigation}
                     tabIndex={menuOpen ? 0 : -1}
                     className="group flex items-center gap-5 py-6 transition-colors hover:text-orange"
                   >
-                    <span className="font-mono text-[11px] tracking-[0.2em] text-white/40 group-hover:text-orange">
+                    <span className="font-mono text-[11px] tracking-[0.2em] text-white/60 group-hover:text-orange">
                       [{String(i + 1).padStart(2, '0')}]
                     </span>
                     <span className="flex-1 text-2xl font-semibold tracking-tight">
@@ -322,16 +368,16 @@ export default function Navbar() {
           {/* Panel footer: CTA + dispatch strip. */}
           <div className="border-t border-white/10 px-6 pt-6 [padding-bottom:calc(env(safe-area-inset-bottom)+1.5rem)]">
             <Button
-              href="#quote"
+              href="/#quote"
               size="lg"
               fullWidth
-              onClick={() => setMenuOpen(false)}
+              onClick={closeForNavigation}
               tabIndex={menuOpen ? 0 : -1}
               className="h-14 text-lg"
             >
               Get a Real Quote
             </Button>
-            <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+            <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
               <a
                 href="mailto:info@bladehaul.com"
                 className="transition-colors hover:text-orange"
@@ -342,11 +388,11 @@ export default function Navbar() {
               <span aria-hidden="true" className="text-white/20">
                 {'//'}
               </span>
-              <span>WYOMING LLC</span>
+              <span>AUTO TRANSPORT</span>
               <span aria-hidden="true" className="text-white/20">
                 {'//'}
               </span>
-              <span className="text-white/30">[N43&deg; W107&deg;]</span>
+              <span className="text-white/55">[DOOR TO DOOR]</span>
             </p>
           </div>
         </div>

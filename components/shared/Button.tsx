@@ -10,10 +10,11 @@ type Variant = 'primary' | 'secondary';
 type Size = 'md' | 'lg';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-lg font-medium tracking-tight transition duration-150 ease-out-quart will-change-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100';
+  'inline-flex items-center justify-center gap-2 rounded-lg font-medium tracking-tight transition duration-150 ease-out-quart focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-orange text-white hover:bg-orange-dark active:bg-orange-dark',
+  primary:
+    'bg-orange text-navy hover:bg-orange-dark hover:text-white active:bg-orange-dark active:text-white',
   secondary:
     'border border-white/20 bg-transparent text-white hover:bg-white/5 active:bg-white/10',
 };
@@ -66,7 +67,7 @@ export default function Button(props: ButtonProps) {
     // scroll when the target hash is already in the URL, so a second click
     // on e.g. "Get a Real Quote" did nothing. Native anchors re-scroll on
     // every click.
-    if (href.startsWith('#')) {
+    if (href.startsWith('#') || href.startsWith('/#')) {
       return (
         <a href={href} className={classes} {...anchorRest}>
           {children}

@@ -5,10 +5,17 @@
 @layer base {
   html {
     color-scheme: light;
+    overflow-x: clip;
   }
 
   body {
-    @apply bg-white font-sans text-[#1A1A1A] antialiased;
+    @apply bg-white font-sans text-text antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
   }
 
   :focus-visible {
@@ -16,33 +23,65 @@
   }
 }
 
-/* Coverage banner: expanding ring on city dots in the US map SVG.
- * `r` is animatable in modern browsers. Staggered delays via modifier classes
- * so the four pins don't pulse in sync.
- */
-@keyframes coverage-ring {
+/* Keep the shipment frame still while its first example gently appears. */
+.shipment-example-content {
+  opacity: 1;
+  transition: opacity 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.shipment-example[data-ready='false'] .shipment-example-content {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Coverage scanner: endpoint rings confirm an explicit route selection once.
+ * New motion stays within the project's transform/opacity contract. */
+@keyframes coverage-pin-confirm {
   0% {
-    r: 4;
-    opacity: 0.6;
+    transform: scale(0.55);
+    opacity: 0.65;
   }
   100% {
-    r: 18;
+    transform: scale(2.15);
     opacity: 0;
   }
 }
 
-.coverage-pulse-ring {
-  animation: coverage-ring 2.6s ease-out infinite;
-}
-.coverage-pulse-ring--d2 {
-  animation-delay: 0.6s;
-}
-.coverage-pulse-ring--d3 {
-  animation-delay: 1.2s;
+.coverage-pin-confirm {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: coverage-pin-confirm 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .coverage-pulse-ring {
+  .shipment-example-content {
+    transition: none;
+  }
+
+  .coverage-pin-confirm {
     animation: none;
   }
+}
+
+/* Quote make combobox only. Keep the compact suggestion panel contained
+ * without changing the page or browser scrollbar treatment. */
+.vehicle-make-options {
+  overscroll-behavior: contain;
+  scrollbar-color: #6b7689 #f1f3f5;
+  scrollbar-width: thin;
+}
+
+.vehicle-make-options::-webkit-scrollbar {
+  width: 8px;
+}
+
+.vehicle-make-options::-webkit-scrollbar-track {
+  background: #f1f3f5;
+  border-radius: 9999px;
+}
+
+.vehicle-make-options::-webkit-scrollbar-thumb {
+  background: #6b7689;
+  border: 2px solid #f1f3f5;
+  border-radius: 9999px;
 }

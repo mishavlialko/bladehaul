@@ -41,11 +41,17 @@ export function Field({
       {children}
       {readout}
       {error ? (
-        <p role="alert" className="text-xs font-medium text-orange-dark">
+        <p
+          id={`${id}-message`}
+          role="alert"
+          className="text-sm font-medium text-orange-dark"
+        >
           {error}
         </p>
       ) : helper ? (
-        <p className="text-xs text-text-faint">{helper}</p>
+        <p id={`${id}-message`} className="text-sm text-text-faint">
+          {helper}
+        </p>
       ) : null}
     </div>
   );

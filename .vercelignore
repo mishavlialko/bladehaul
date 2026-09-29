@@ -1,0 +1,24 @@
+# Upload only runtime source and build configuration, never workspace notes.
+/*
+!app
+!components
+!lib
+!public
+!package.json
+!package-lock.json
+!next.config.ts
+!tsconfig.json
+!postcss.config.mjs
+!tailwind.config.ts
+!vercel.json
+!.vercelignore
+
+# Runtime directories also contain local verification helpers.
+**/*.test.mts
+**/test-runtime.mts
+**/.env*
+**/*.pem
+
+# Preserve local artwork history without serving it on the deployed site.
+/public/hero-bg.jpg
+/public/hero-bg-v3-upscayl.jpg

@@ -1,166 +1,58 @@
-# BladeHaul Auto Transport — Website
+# BladeHaul website
 
-Pre-launch landing page for **BladeHaul Auto Transport LLC**, a US car shipping brokerage. Conversion engine for paid traffic and organic search. FMCSA broker authority pending (~2 months out as of May 2026).
+Next.js website for BladeHaul Auto Transport LLC, a Texas company.
 
-**Live URL (when deployed):** [bladehaul.com](https://bladehaul.com) · **Status:** pre-launch, not yet indexed by Google.
+## Stack
 
----
+Node.js 24, npm, Next.js 16, React 19, TypeScript and Tailwind CSS 3.
+The repository includes the homepage, Privacy Policy, Website Terms, quote
+validation, and a separately enabled temporary quote-delivery service.
 
-## For AI agents reviewing this repo
+## Local development
 
-If you are an AI assistant landing on this codebase to provide review or recommendations, read these three files **before** generating any feedback. They are the authoritative project context.
-
-1. **[CLAUDE.md](./CLAUDE.md)** — Master spec. Brand voice rules, site structure, slogan locks, banned vocabulary, technical requirements. Long but load-bearing.
-2. **[PRODUCT.md](./PRODUCT.md)** — Customer profile (35–65 stressed B2C, mobile-heavy), strategic principles, canonical section H2s (these override CLAUDE.md drafts), anti-references.
-3. **[DESIGN.md](./DESIGN.md)** — Visual system. Color palette (locked hex values), typography, layout rules, elevation patterns, anti-AI-slop list.
-
-Plus [AGENTS.md](./AGENTS.md) — a note from `create-next-app` reminding you to read Next.js docs in `node_modules/next/dist/docs/` since this is Next.js 16 (not the version most training data covers).
-
-### What kind of feedback is most useful
-
-- **Strategic / conversion** — does this convert a stressed parent comparing 8–12 broker quotes on an old iPhone? Where do you see drop-off risk?
-- **Visual polish** — the founder has flagged that the design feels "generic, not premium" despite being structurally correct. Specific section-by-section recommendations for visual lift are welcome.
-- **A11y** — the form, FAQ accordion, and navbar are the highest-impact a11y surfaces. Verify ARIA attributes and semantic structure.
-- **Brand voice violations** — the spec bans self-claims like "trusted", "premium", "honest". If you spot any in the copy, flag them.
-
-### What is locked and what is negotiable
-
-- **LOCKED:** Slogan ("The Sharpest Way to Ship Your Car" / "Sharp on every detail."), color palette (hex values in `tailwind.config.ts`), font stack (Inter + Big Shoulders Display + JetBrains Mono), brand voice rules (no self-claims, no em-dashes).
-- **Negotiable:** Everything else — section copy, visual treatments, layout details, motion choices, asset choices.
-
----
-
-## Quick start
-
-```bash
-npm install
-cp .env.example .env.local      # fill in keys as needed
-npm run dev                     # http://localhost:3000
+```sh
+npm ci
+npm run dev
 ```
 
-Available scripts:
+For a production-render preview:
 
-| Script             | What it does                                        |
-| ------------------ | --------------------------------------------------- |
-| `npm run dev`      | Local dev server with HMR (Turbopack)               |
-| `npm run build`    | Production build                                    |
-| `npm run start`    | Run the production build locally                    |
-| `npm run lint`     | ESLint over the whole codebase                      |
-| `npm run format`   | Prettier write across all files                     |
-| `npm run format:check` | Prettier check without writing                  |
-
----
-
-## Tech stack
-
-- **Framework:** Next.js 16 (App Router) + React 19
-- **Language:** TypeScript strict mode
-- **Styling:** Tailwind CSS v3.4
-- **Forms:** React Hook Form + Zod
-- **Icons:** Lucide React
-- **Email:** Resend (stubbed; only fires when `RESEND_API_KEY` is set)
-- **CRM webhook:** BeRocker (stubbed; activates post-FMCSA MC#)
-- **Deploy target:** Vercel
-
-**Banned at the project level:** Framer Motion, GSAP, any JS animation library. CSS transitions only. Lighthouse targets: Performance ≥90, Accessibility ≥95, Best Practices 100, SEO 100. Initial JS bundle <100KB.
-
----
-
-## Project structure
-
-```text
-app/
-├── layout.tsx              Root layout, metadata API, 3 fonts, skip link
-├── page.tsx                Landing page (composes all sections + JSON-LD)
-├── icon.svg                Favicon (standalone blade emblem)
-├── globals.css             Tailwind directives + base layer + coverage keyframes
-├── robots.ts               robots.txt generator
-├── sitemap.ts              sitemap.xml generator
-├── api/quote/route.ts      POST /api/quote (Zod validate, rate limit, Resend stub)
-├── privacy/page.tsx        Privacy Policy (draft, needs legal review)
-└── terms/page.tsx          Terms of Service (draft, needs legal review)
-
-components/
-├── shared/
-│   ├── Container.tsx       max-w-7xl wrapper, polymorphic `as` prop
-│   ├── Button.tsx          Primary/secondary, md/lg, optional href
-│   └── Logo.tsx            /public/logo.svg wordmark, scroll-to-top on home
-└── sections/
-    ├── Navbar.tsx          Fixed paper bg, auto-hide on scroll, mobile overlay menu
-    ├── Hero.tsx            Dark, asymmetric: copy left, MiniQuoteForm + cascade right
-    ├── MiniQuoteForm.tsx   3-field starter form, sessionStorage handoff
-    ├── ShipmentCard.tsx    Ambient "in transit" card (front card animates)
-    ├── ShipmentCascade.tsx Static deck of 3 ShipmentCards (decorative)
-    ├── TrustStrip.tsx      4 mechanical chips
-    ├── HowItWorks.tsx      3-step rail with connected orange nodes
-    ├── Comparison.tsx      Dark, 5 pain-vs-mechanism pairs
-    ├── Coverage.tsx        Dot-grid US map + stats
-    ├── Routes.tsx          Dispatch-manifest table, 10 routes
-    ├── About.tsx           Founder bio + 3 fact bullets
-    ├── FAQ.tsx             Accordion (client component, grid-rows animation)
-    ├── FinalCTA.tsx        Single push CTA
-    ├── QuoteForm.tsx       3-step quote form shell + success state
-    ├── QuoteProgress.tsx   1-2-3 step indicator
-    ├── QuoteField.tsx      Shared field shell + input styling for the steps
-    ├── QuoteStepRoute.tsx  Step 1: ZIPs (live city lookup) + trailer
-    ├── QuoteStepVehicle.tsx Step 2: year/make (datalist)/model/VIN/condition
-    ├── QuoteStepContact.tsx Step 3: date/name/email/phone
-    └── Footer.tsx          Paper bg, 4-column grid + social pills + bottom strip
-
-lib/
-├── cn.ts                   clsx + tailwind-merge class merge utility
-├── phone.ts                US phone format-as-typing helper
-├── makes.ts                Vehicle make datalist options
-├── shipments.ts            Sample shipment data for ShipmentCascade
-└── validation.ts           Zod schema + per-step field groups
-
-public/
-├── logo.svg                Full logo (3.3 KB vector)
-├── hero-bg.jpg             Hero background photo (served via next/image)
-└── blade-emblem.png        Emblem-only variant (587×533 transparent PNG, unused in code)
+```sh
+npm run build
+npm start
 ```
 
----
+## Checks
 
-## Environment variables
+```sh
+npm run lint
+npm exec -- tsc --noEmit
+npm run format:check
+npm test
+npm run build
+```
 
-| Key                       | Required for                      | Default behaviour if missing             |
-| ------------------------- | --------------------------------- | ---------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`    | Canonical URLs, sitemap, robots   | Falls back to `https://bladehaul.com`    |
-| `RESEND_API_KEY`          | Outbound email notification       | Notification is skipped, logged instead  |
-| `BEROCKER_WEBHOOK_URL`    | CRM forwarding                    | Forward is skipped                       |
-| `ADMIN_EMAIL`             | Where Resend sends notifications  | Notification is skipped if missing       |
+Tests use synthetic requests and mocked providers. They do not establish
+successful live email delivery or configured cloud services.
 
-Pre-launch, all keys can be empty and the form still works end-to-end (logs to console only).
+## Deployment
 
----
+Deploy on Vercel with the Next.js preset, Node 24, `npm ci` and `npm run build`.
+The canonical site origin is configured through `NEXT_PUBLIC_SITE_URL`.
+`.vercelignore` restricts uploaded files to runtime source and build settings.
 
-## Phase status
+The quote API is disabled by default. Setting provider credentials alone does
+not activate it. Keep `QUOTE_INTAKE_ENABLED=false` until the authorized release
+and actual storage, email, abuse-control and retention checks are complete.
+The website does not process payments or create paid transport orders.
 
-| Phase                                                     | Status            |
-| --------------------------------------------------------- | ----------------- |
-| 1 — Foundation (scaffold, Tailwind, fonts, Prettier)      | ✅ Done           |
-| 2 — Shared primitives (Container, Button, Logo, cn)       | ✅ Done           |
-| 3 — 11 page sections                                      | ✅ Done           |
-| 4 — API route, validation, email/webhook stubs            | ✅ Done           |
-| 5 — Metadata, robots, sitemap, JSON-LD                    | ✅ Done           |
-| 5 — Favicon (app/icon.svg, blade emblem)                  | ✅ Done           |
-| 5 — OG image (1200×630)                                   | ⏸ Deferred        |
-| 6 — Privacy + Terms pages                                 | ✅ Done (draft, needs legal review) |
-| 7 — Lighthouse / WCAG / responsive pass                   | 🟡 In progress    |
-| 8 — Deploy to Vercel + DNS                                | ⏳ Pending        |
+`.env.example` documents placeholders. Never commit actual credentials,
+customer records, private business documents or deployment access tokens.
+Use separate private storage and credentials for production and test previews.
 
----
+## Source scope
 
-## Known limitations / open questions
-
-- **Visual identity is not final.** Founder has flagged the design as feeling "generic" despite structurally correct. Reviewers are encouraged to suggest concrete visual polish moves.
-- **Legal documents (Privacy / Terms) are starting drafts.** They have not been reviewed by a US attorney. Before production launch, both need legal review with a focus on broker-specific clauses and FMCSA compliance.
-- **No real customer reviews, MC#, or USDOT number** is published yet. The site avoids claiming any of these and uses pre-launch soft trust signals instead.
-- **The founder operates from Ukraine** and customer traffic is mostly US-based. The promised SLA in the success state is "within 2 hours" — realistic for US business hours, may need adjusting for off-hours coverage post-launch.
-
----
-
-## License
-
-Proprietary. © 2026 BladeHaul Auto Transport LLC.
+This repository contains application source, tests and build configuration.
+Business records, internal research, operational evidence and received company
+documents are maintained separately. The old static landing page is a separate
+repository and is not the source of this application.

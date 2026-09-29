@@ -1,9 +1,9 @@
 import Container from '@/components/shared/Container';
 
 const facts = [
-  '5 years in car shipping',
-  '1,000+ shipments dispatched before BladeHaul',
-  'Wyoming-registered LLC',
+  'Auto transport experience since 2022',
+  'Experience gained before BladeHaul',
+  'Texas-registered LLC',
 ];
 
 export default function About() {
@@ -14,20 +14,22 @@ export default function About() {
     >
       <Container className="py-24 sm:py-28 lg:py-32">
         <div className="max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-[-0.03em] leading-[1.02] sm:text-4xl lg:text-5xl">
+          <h2 className="font-display text-3xl font-semibold leading-[1.02] tracking-[-0.03em] sm:text-4xl lg:text-5xl">
             Built by someone who actually does this
           </h2>
           <div className="mt-8 space-y-5 text-lg leading-relaxed text-white/65">
             <p>
-              BladeHaul is run by Mykhailo. Before starting this company I spent
-              five years dispatching over 1,000 car shipments.
+              BladeHaul is built on hands-on auto transport experience gained
+              since 2022, before the company was formed.
             </p>
             <p>
-              I saw the same problems repeat every week: silent brokers,
-              last-minute price hikes, and a different person on the phone every
-              time.
+              That experience shaped the way we work: one agent handling your
+              shipment, daily updates, and clear options before you make a
+              decision.
             </p>
-            <p>That&apos;s why I built BladeHaul. To do it differently.</p>
+            <p>
+              We arrange your transport. You approve the carrier and the price.
+            </p>
           </div>
 
           <ul className="mt-12 grid grid-cols-1 gap-x-8 gap-y-4 border-t border-white/10 pt-8 sm:grid-cols-3">

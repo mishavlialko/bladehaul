@@ -15,6 +15,8 @@ const eslintConfig = defineConfig([
     // Local-only Claude Design / reference dumps (not shipped):
     '.claude-design-tmp*/**',
     'references/**',
+    // Generated local agent session state (gitignored, not application code):
+    '.remember/**',
   ]),
 ]);
 

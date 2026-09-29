@@ -15,22 +15,17 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bladehaul.com';
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'MovingCompany',
+  '@type': 'Organization',
   name: 'BladeHaul Auto Transport',
   legalName: 'BladeHaul Auto Transport LLC',
   url: SITE_URL,
   email: 'info@bladehaul.com',
   description:
-    'US car shipping brokerage with one dispatcher from quote to delivery, daily updates, and price changes confirmed in writing.',
-  founder: {
-    '@type': 'Person',
-    name: 'Mykhailo Vlialko',
-  },
+    'US car shipping brokerage with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed.',
   areaServed: {
     '@type': 'Country',
     name: 'United States',
   },
-  serviceType: 'Auto Transport',
   knowsAbout: [
     'Open trailer auto transport',
     'Enclosed trailer auto transport',
@@ -41,7 +36,10 @@ const jsonLd = {
   address: {
     '@type': 'PostalAddress',
     addressCountry: 'US',
-    addressRegion: 'WY',
+    streetAddress: '11816 Inwood Rd, #1171',
+    addressLocality: 'Dallas',
+    addressRegion: 'TX',
+    postalCode: '75244',
   },
 };
 

@@ -9,6 +9,15 @@ export type Shipment = {
   progress: number;
 };
 
+export type ShipmentPreview = Omit<Shipment, 'progress'> & {
+  id: string;
+  selectorLabel: string;
+  status: 'Carrier assigned' | 'Picked up' | 'In transit' | 'Delivered';
+  stage: 0 | 1 | 2 | 3;
+  transport: 'Open transport' | 'Enclosed transport';
+  detail: 'Door-to-door' | 'Large pickup' | 'Coast-to-coast';
+};
+
 export const shipments: Shipment[] = [
   {
     vehicle: '2019 Honda Accord',
@@ -171,3 +180,73 @@ export const shipments: Shipment[] = [
     progress: 0.85,
   },
 ];
+
+const previewStatuses = [
+  'Carrier assigned',
+  'Picked up',
+  'In transit',
+  'Delivered',
+] as const;
+
+// Twenty synthetic routes and vehicles above, with five examples of each
+// stage. These are illustrations, never customer records or live tracking.
+const previewStages: readonly ShipmentPreview['stage'][] = [
+  2, 0, 1, 3, 2, 1, 0, 2, 3, 1, 0, 2, 3, 1, 2, 0, 3, 1, 0, 3,
+];
+const enclosedExamples = new Set([3, 5, 9, 10, 13, 14, 17]);
+const pickupExamples = new Set([2, 7, 12]);
+
+export const shipmentPreviews: readonly ShipmentPreview[] = shipments.map(
+  (shipment, index) => {
+    const stage = previewStages[index];
+    const enclosed = enclosedExamples.has(index);
+    return {
+      id: `example-${index + 1}`,
+      selectorLabel: enclosed ? 'Enclosed' : 'Open',
+      status: previewStatuses[stage],
+      stage,
+      transport: enclosed ? 'Enclosed transport' : 'Open transport',
+      detail:
+        index === 5
+          ? 'Coast-to-coast'
+          : pickupExamples.has(index)
+            ? 'Large pickup'
+            : 'Door-to-door',
+      vehicle: shipment.vehicle,
+      fromCity: shipment.fromCity,
+      fromZip: shipment.fromZip,
+      toCity: shipment.toCity,
+      toZip: shipment.toZip,
+    };
+  },
+);
+
+export type LastShipmentExample = Pick<ShipmentPreview, 'id' | 'status'>;
+
+export function orderShipmentExamples(
+  examples: readonly ShipmentPreview[],
+  previous?: LastShipmentExample,
+  random = Math.random,
+): ShipmentPreview[] {
+  const order = [...examples];
+  for (let index = order.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [order[index], order[swapIndex]] = [order[swapIndex], order[index]];
+  }
+  if (!previous || order.length < 2) return order;
+
+  const previousVehicle = examples.find(
+    (example) => example.id === previous.id,
+  )?.vehicle;
+  const nextIndex = order.findIndex(
+    (example) =>
+      example.id !== previous.id &&
+      example.vehicle !== previousVehicle &&
+      example.status !== previous.status,
+  );
+  // The curated set always has another vehicle and status. Keep a safe
+  // fallback if a future caller supplies only a single stage.
+  if (nextIndex > 0)
+    [order[0], order[nextIndex]] = [order[nextIndex], order[0]];
+  return order;
+}

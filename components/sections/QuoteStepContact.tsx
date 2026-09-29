@@ -1,17 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, useMemo } from 'react';
+import { useId } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { Field, inputClass } from '@/components/sections/QuoteField';
 import { formatUSPhone } from '@/lib/phone';
-import { type QuoteInput } from '@/lib/validation';
-
-function todayPlus(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
-}
+import { getQuoteDateBounds, type QuoteInput } from '@/lib/validation';
 
 export default function QuoteStepContact() {
   const {
@@ -25,18 +19,16 @@ export default function QuoteStepContact() {
   const lastId = useId();
   const emailId = useId();
   const phoneId = useId();
+  const consentId = useId();
 
-  const dateBounds = useMemo(
-    () => ({ min: todayPlus(0), max: todayPlus(180) }),
-    [],
-  );
+  const dateBounds = getQuoteDateBounds();
 
   return (
     <div className="space-y-6">
       <Field
         id={dateId}
-        label="First available pickup"
-        helper="Most cars get picked up within 3 to 7 days of this date."
+        label="Preferred pickup date"
+        helper="Choose your preferred date. We will confirm availability with you."
         error={errors.readyDate?.message}
       >
         <input
@@ -45,19 +37,28 @@ export default function QuoteStepContact() {
           min={dateBounds.min}
           max={dateBounds.max}
           aria-invalid={!!errors.readyDate}
+          aria-describedby={`${dateId}-message`}
           {...register('readyDate')}
           className={inputClass(!!errors.readyDate)}
         />
       </Field>
 
       <div className="grid gap-6 sm:grid-cols-2">
-        <Field id={firstId} label="First name" error={errors.firstName?.message}>
+        <Field
+          id={firstId}
+          label="First name"
+          error={errors.firstName?.message}
+        >
           <input
             id={firstId}
             type="text"
             autoComplete="given-name"
             placeholder="First"
             aria-invalid={!!errors.firstName}
+            aria-describedby={
+              errors.firstName ? `${firstId}-message` : undefined
+            }
+            maxLength={40}
             {...register('firstName')}
             className={inputClass(!!errors.firstName)}
           />
@@ -69,6 +70,8 @@ export default function QuoteStepContact() {
             autoComplete="family-name"
             placeholder="Last"
             aria-invalid={!!errors.lastName}
+            aria-describedby={errors.lastName ? `${lastId}-message` : undefined}
+            maxLength={40}
             {...register('lastName')}
             className={inputClass(!!errors.lastName)}
           />
@@ -88,6 +91,8 @@ export default function QuoteStepContact() {
           autoComplete="email"
           placeholder="you@email.com"
           aria-invalid={!!errors.email}
+          aria-describedby={`${emailId}-message`}
+          maxLength={254}
           {...register('email')}
           className={inputClass(!!errors.email)}
         />
@@ -96,7 +101,7 @@ export default function QuoteStepContact() {
       <Field
         id={phoneId}
         label="Phone (optional)"
-        helper="Add this for a same-day call and text update. Without it, the quote comes by email only."
+        helper="Prefer a call or text? Add your number and select the option below."
         error={errors.phone?.message}
       >
         <Controller
@@ -110,10 +115,11 @@ export default function QuoteStepContact() {
               autoComplete="tel"
               placeholder="+1 (555) 123-4567"
               aria-invalid={!!errors.phone}
+              aria-describedby={`${phoneId}-message`}
+              name={field.name}
+              ref={field.ref}
               value={field.value ?? ''}
-              onChange={(e) =>
-                field.onChange(formatUSPhone(e.target.value))
-              }
+              onChange={(e) => field.onChange(formatUSPhone(e.target.value))}
               onBlur={field.onBlur}
               className={inputClass(!!errors.phone)}
             />
@@ -121,22 +127,55 @@ export default function QuoteStepContact() {
         />
       </Field>
 
-      <p className="text-xs leading-relaxed text-text-faint">
-        By submitting this form, you agree we may contact you by email and,
-        if you provided a phone number, by text and call about your quote,
-        including from an automatic dialing system. Standard message and
-        data rates apply. Consent is not required to get a quote. Reply
-        STOP to texts to opt out. See our{' '}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-text-dim">
+      <div>
+        <label
+          htmlFor={consentId}
+          className="flex min-h-11 cursor-pointer items-start gap-3 py-2 text-sm leading-relaxed text-text-dim"
+        >
+          <input
+            id={consentId}
+            type="checkbox"
+            {...register('consentTcpa')}
+            aria-describedby={`${consentId}-helper`}
+            className="mt-1 h-5 w-5 shrink-0 accent-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+          />
+          <span>
+            Call or text me about this quote at the number provided (optional).
+          </span>
+        </label>
+        <p
+          id={`${consentId}-helper`}
+          className="mt-1 text-sm leading-relaxed text-text-faint"
+        >
+          You can get your quote by email without selecting this option. Message
+          and data rates may apply. Reply STOP to texts to opt out.
+        </p>
+      </div>
+
+      <p className="text-sm leading-relaxed text-text-faint">
+        We use your details to answer this request. This free quote request does
+        not book a shipment or authorize a payment. See our{' '}
+        <Link
+          href="/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-text-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+        >
           Privacy Policy
+          <span className="sr-only"> (opens in a new tab)</span>
         </Link>{' '}
         and{' '}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-text-dim">
+        <Link
+          href="/terms"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline underline-offset-2 hover:text-text-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+        >
           Terms
+          <span className="sr-only"> (opens in a new tab)</span>
         </Link>
         .
       </p>
     </div>
   );
 }
-

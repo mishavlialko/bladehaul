@@ -74,6 +74,9 @@ export default function QuoteStepRoute() {
             placeholder="90210"
             maxLength={5}
             aria-invalid={!!errors.pickupZip}
+            aria-describedby={
+              errors.pickupZip ? `${pickupId}-message` : undefined
+            }
             {...register('pickupZip', {
               onChange: (e) => {
                 e.target.value = e.target.value.replace(/\D/g, '');
@@ -97,6 +100,9 @@ export default function QuoteStepRoute() {
             placeholder="33101"
             maxLength={5}
             aria-invalid={!!errors.deliveryZip}
+            aria-describedby={
+              errors.deliveryZip ? `${deliveryId}-message` : undefined
+            }
             {...register('deliveryZip', {
               onChange: (e) => {
                 e.target.value = e.target.value.replace(/\D/g, '');
@@ -107,7 +113,13 @@ export default function QuoteStepRoute() {
         </Field>
       </div>
 
-      <fieldset>
+      <fieldset
+        aria-describedby={
+          errors.trailerType
+            ? `${trailerOpenId}-error`
+            : `${trailerOpenId}-helper`
+        }
+      >
         <legend className="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-faint">
           Trailer type
         </legend>
@@ -119,7 +131,7 @@ export default function QuoteStepRoute() {
               <label
                 key={value}
                 htmlFor={id}
-                className="group flex h-10 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-medium text-text-dim transition-all duration-200 ease-out-quart hover:text-text has-[:checked]:bg-white has-[:checked]:text-text has-[:checked]:shadow-sm has-[:checked]:ring-1 has-[:checked]:ring-text/5"
+                className="group flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg text-sm font-medium text-text-dim transition-colors duration-200 ease-out-quart hover:text-text has-[:checked]:bg-white has-[:checked]:text-text has-[:checked]:shadow-sm has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-orange has-[:checked]:ring-1 has-[:checked]:ring-text/5"
               >
                 <input
                   id={id}
@@ -137,12 +149,19 @@ export default function QuoteStepRoute() {
             );
           })}
         </div>
-        <p className="mt-2 text-xs text-text-faint">
-          Open is standard and runs lower. Enclosed protects against weather
-          and road debris.
+        <p
+          id={`${trailerOpenId}-helper`}
+          className="mt-2 text-sm text-text-faint"
+        >
+          Open is standard and runs lower. Enclosed protects against weather and
+          road debris.
         </p>
         {errors.trailerType && (
-          <p role="alert" className="mt-2 text-xs font-medium text-orange-dark">
+          <p
+            id={`${trailerOpenId}-error`}
+            role="alert"
+            className="mt-2 text-sm font-medium text-orange-dark"
+          >
             {errors.trailerType.message}
           </p>
         )}
@@ -168,18 +187,25 @@ function ZipReadout({ lookup }: ZipReadoutProps) {
   if (lookup.status === 'idle') return null;
   if (lookup.status === 'loading') {
     return (
-      <p className="flex items-center gap-2 text-xs text-text-faint">
-        <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-faint" />
+      <p
+        role="status"
+        className="flex items-center gap-2 text-sm text-text-faint"
+      >
+        <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-text-faint motion-reduce:animate-none" />
         Looking up city…
       </p>
     );
   }
   if (lookup.status === 'ok') {
-    return <p className="text-xs font-medium text-text-dim">{lookup.label}</p>;
+    return (
+      <p role="status" className="text-sm font-medium text-text-dim">
+        {lookup.label}
+      </p>
+    );
   }
   return (
-    <p className="text-xs text-orange-dark">
-      We couldn&apos;t find that ZIP. Double-check the digits.
+    <p role="status" className="text-sm text-orange-dark">
+      City lookup is unavailable. Double-check the ZIP before continuing.
     </p>
   );
 }

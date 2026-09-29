@@ -32,9 +32,9 @@ const jetbrainsMono = JetBrains_Mono({
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bladehaul.com';
 
-const TITLE = 'BladeHaul Auto Transport — The Sharpest Way to Ship Your Car';
+const TITLE = 'BladeHaul Auto Transport | The Sharpest Way to Ship Your Car';
 const DESCRIPTION =
-  'US car shipping with one dispatcher from quote to delivery, daily updates, and price changes confirmed in writing. Get a real quote in one minute.';
+  'US car shipping with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed. Get a real quote.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

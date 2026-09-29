@@ -11,11 +11,11 @@ const metrics: Metric[] = [
     detail: 'Even on quiet days.',
   },
   {
-    headline: 'Written confirmations',
-    detail: 'Price changes never come by phone.',
+    headline: 'You stay in control',
+    detail: 'We explain the market. You decide what happens next.',
   },
   {
-    headline: 'One dispatcher',
+    headline: 'Your agent',
     detail: 'Quote to delivery, same person.',
   },
   {
@@ -31,7 +31,7 @@ export default function TrustStrip() {
       className="border-b border-white/10 bg-navy text-white"
     >
       <Container>
-        <dl className="grid grid-cols-2 divide-x divide-y divide-white/10 [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(2n-1)]:border-l-0 lg:grid-cols-4 lg:divide-y-0 lg:[&>*]:border-t-0">
+        <dl className="grid grid-cols-2 divide-x divide-y divide-white/10 lg:grid-cols-4 lg:divide-y-0 [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(2n-1)]:border-l-0 lg:[&>*]:border-t-0">
           {metrics.map((metric) => (
             <div
               key={metric.headline}

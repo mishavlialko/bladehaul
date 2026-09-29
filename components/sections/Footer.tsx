@@ -16,23 +16,23 @@ const columns: FooterColumn[] = [
   {
     heading: 'Company',
     links: [
-      { label: 'About', href: '#about' },
+      { label: 'About', href: '/#about' },
       { label: 'Contact', href: 'mailto:info@bladehaul.com' },
     ],
   },
   {
     heading: 'Services',
     links: [
-      { label: 'How It Works', href: '#how-it-works' },
-      { label: 'Routes', href: '#routes' },
-      { label: 'FAQ', href: '#faq' },
+      { label: 'How It Works', href: '/#how-it-works' },
+      { label: 'Routes', href: '/#routes' },
+      { label: 'FAQ', href: '/#faq' },
     ],
   },
   {
     heading: 'Legal',
     links: [
       { label: 'Privacy Policy', href: '/privacy' },
-      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Website Terms', href: '/terms' },
     ],
   },
 ];
@@ -49,13 +49,26 @@ export default function Footer() {
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-text-dim">
               The Sharpest Way to Ship Your Car.
             </p>
+            <p className="mt-4 text-sm leading-relaxed">
+              BladeHaul Auto Transport LLC
+              <br />
+              Vehicle transport broker
+              <br />
+              MC 85480782
+              <br />
+              Registered office:
+              <br />
+              11816 Inwood Rd, #1171
+              <br />
+              Dallas, TX 75244
+            </p>
             <div className="mt-6 flex gap-3">
               <a
                 href="https://instagram.com/bladehaul"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BladeHaul on Instagram"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -77,7 +90,7 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="BladeHaul on TikTok"
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
+                className="flex h-11 w-11 items-center justify-center rounded-full border border-line text-text-dim transition-colors hover:border-text-faint hover:text-text"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -96,23 +109,23 @@ export default function Footer() {
               <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-text">
                 {col.heading}
               </h2>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-3">
                 {col.links.map((link) => (
                   <li key={link.label}>
                     {/* Real pages go through next/link; hash + mailto links
                         are plain <a> (next/link skips re-scrolling when the
                         hash is already in the URL). */}
-                    {link.href.startsWith('/') ? (
+                    {link.href.startsWith('/') && !link.href.includes('#') ? (
                       <Link
                         href={link.href}
-                        className="text-sm text-text-dim transition-colors hover:text-text"
+                        className="inline-flex min-h-11 min-w-11 items-center text-sm text-text-dim transition-colors hover:text-text"
                       >
                         {link.label}
                       </Link>
                     ) : (
                       <a
                         href={link.href}
-                        className="text-sm text-text-dim transition-colors hover:text-text"
+                        className="inline-flex min-h-11 min-w-11 items-center text-sm text-text-dim transition-colors hover:text-text"
                       >
                         {link.label}
                       </a>
@@ -125,11 +138,16 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 border-t border-line pt-8">
+          <p className="mb-4 max-w-2xl text-sm leading-relaxed">
+            Before paying, match the payment instructions to your written
+            transport order. If anything changes unexpectedly, confirm it with
+            your agent at info@bladehaul.com.
+          </p>
           <div className="flex flex-col gap-4 text-xs text-text-dim sm:flex-row sm:items-center sm:justify-between">
             <p>© {year} BladeHaul Auto Transport LLC.</p>
             <a
               href="mailto:info@bladehaul.com"
-              className="text-text-dim transition-colors hover:text-text"
+              className="inline-flex min-h-11 items-center text-text-dim transition-colors hover:text-text"
             >
               info@bladehaul.com
             </a>

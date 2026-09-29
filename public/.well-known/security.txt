@@ -1,0 +1,4 @@
+Contact: mailto:info@bladehaul.com
+Expires: 2027-03-29T00:00:00Z
+Preferred-Languages: en
+Canonical: https://bladehaul.com/.well-known/security.txt

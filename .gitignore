@@ -38,7 +38,7 @@ yarn-error.log*
 /references/
 /.claude-design-tmp*/
 
-# vendored agent skills (reproducible from skills-lock.json)
+# local agent skills
 /.agents/
 
 # local agent session memory
@@ -50,3 +50,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Internal working material is kept outside the public source tree.
+/docs/
+/design-plans/
+/work/
+/.claude/
+/.cursor/
+/workflows/
+CLAUDE.md
+PRODUCT.md
+DESIGN.md

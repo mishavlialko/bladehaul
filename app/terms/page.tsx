@@ -1,176 +1,141 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import Container from '@/components/shared/Container';
 import Footer from '@/components/sections/Footer';
 import Navbar from '@/components/sections/Navbar';
 
 export const metadata: Metadata = {
-  title: 'Terms of Service',
+  title: 'Website Terms',
   description:
-    'Terms that govern your use of the BladeHaul Auto Transport website and our broker services.',
-  robots: { index: true, follow: true },
+    'Simple terms for using the BladeHaul website and requesting a free vehicle transport quote.',
   alternates: { canonical: '/terms' },
 };
 
-const EFFECTIVE_DATE = 'May 10, 2026';
+const UPDATED_DATE = 'September 29, 2026';
+const linkClass =
+  'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
 export default function TermsPage() {
   return (
     <>
       <Navbar />
       <main id="main" tabIndex={-1} className="outline-none">
-        <article className="bg-white py-24 text-text sm:py-28 lg:py-32">
+        <article className="bg-white pb-24 pt-[calc(8rem+env(safe-area-inset-top))] text-text sm:pb-28 sm:pt-[calc(9rem+env(safe-area-inset-top))] lg:pb-32 lg:pt-[calc(13rem+env(safe-area-inset-top))]">
           <Container className="max-w-3xl">
-            <p className="text-xs font-medium uppercase tracking-[0.22em] text-text-faint">
-              Effective {EFFECTIVE_DATE}
+            <Link
+              href="/"
+              className={`${linkClass} inline-flex min-h-11 items-center text-sm`}
+            >
+              Back to BladeHaul
+            </Link>
+            <p className="mt-6 text-xs font-medium uppercase tracking-[0.22em] text-text-faint">
+              Updated {UPDATED_DATE}
             </p>
             <h1 className="mt-4 font-display text-4xl font-semibold tracking-tight sm:text-5xl">
-              Terms of Service
+              Website terms
             </h1>
-            <p className="mt-6 text-lg text-text-dim">
-              These Terms govern your use of the BladeHaul Auto Transport
-              website (the &ldquo;Site&rdquo;) and any quote you request through
-              it. By using the Site, you agree to these Terms.
+            <p className="mt-6 text-lg leading-relaxed text-text-dim">
+              These terms cover this website and its free quote form. A shipment
+              has its own agreement, with the route, price, timing, and payment
+              terms you accept before booking.
             </p>
 
-            <Section title="Who we are">
+            <Section title="About BladeHaul">
               <p>
-                BladeHaul Auto Transport LLC is a Wyoming limited liability
-                company operating as a licensed property broker of household
-                goods in the United States. FMCSA broker authority is pending at
-                the time of writing; once active, our USDOT and MC numbers will
-                be published on the Site.
+                BladeHaul Auto Transport LLC is a Texas limited liability
+                company. Our role is to arrange vehicle transportation as a
+                broker. The independent motor carrier you approve handles the
+                physical transportation.
               </p>
             </Section>
 
-            <Section title="What we do">
+            <Section title="A quote is a starting point">
               <p>
-                BladeHaul is a broker. We do not own trucks or trailers. We
-                match your shipment with a vetted motor carrier who actually
-                transports your vehicle. The carrier is responsible for the
-                physical movement of the vehicle and carries the cargo insurance
-                that covers the shipment in transit.
+                Requesting a quote is free. It does not book a carrier,
+                authorize a card payment, or create a cancellation fee. We use
+                your route, vehicle details, and preferred pickup date to
+                discuss available options with you.
+              </p>
+              <p>
+                Carrier availability and prices can change before you accept an
+                arrangement. We explain the available options and confirm the
+                carrier, total price, and booking details in writing. A
+                different price or material change needs your agreement.
               </p>
             </Section>
 
-            <Section title="Quotes and price">
+            <Section title="Booking and payment">
               <p>
-                A quote we give you reflects the carrier market rates at the
-                time you request it. Carrier rates move with fuel, demand, and
-                route density. If the market shifts between the quote and
-                dispatch, we will tell you in writing and offer you two options:
+                Before paid search or booking begins, you receive a separate
+                transport agreement. It sets out the search window, broker
+                commission, carrier balance, and cancellation rules for your
+                order. Review and accept that agreement before authorizing the
+                work.
               </p>
-              <ul className="mt-3 list-disc space-y-2 pl-6">
-                <li>
-                  Accept the adjusted price to keep the original pickup window.
-                </li>
-                <li>
-                  Keep the original price and extend the pickup window until a
-                  carrier accepts the load at that rate.
-                </li>
-              </ul>
-              <p className="mt-4">
-                You must confirm the adjustment in writing before we proceed. We
-                do not change prices verbally or under time pressure.
+              <p>
+                This website does not collect card details or take payments. Do
+                not enter card numbers, bank details, or identity documents in
+                the quote form.
               </p>
             </Section>
 
-            <Section title="Deposits and payment">
+            <Section title="Using the site">
               <p>
-                We do not charge a deposit until a carrier is confirmed for your
-                load. After carrier confirmation, the deposit amount, payment
-                method, and remaining balance terms will be disclosed to you in
-                writing before you authorize payment. Payments to BladeHaul are
-                for the broker service; the carrier collects the balance
-                directly on delivery according to the agreed terms.
+                Please give us accurate information and submit requests only for
+                yourself or someone you are authorized to represent. You may
+                save or print site information for your own planning. Do not
+                impersonate another person, submit spam, interfere with the
+                site, or attempt to access private information.
+              </p>
+              <p>
+                Site content belongs to BladeHaul or its licensors. Permission
+                to use the site does not transfer ownership of the content or
+                brand.
               </p>
             </Section>
 
-            <Section title="Cancellations">
+            <Section title="Privacy and communication">
               <p>
-                If you cancel before a carrier is confirmed, you owe nothing. If
-                you cancel after carrier confirmation, the carrier may charge a
-                cancellation fee that we will pass through to you, and our
-                broker deposit may be non-refundable. Specific cancellation
-                terms will be disclosed in writing at the time of booking.
+                Our{' '}
+                <Link href="/privacy" className={linkClass}>
+                  Privacy Policy
+                </Link>{' '}
+                explains how we use your request and how to contact us about
+                your information. If you provide a phone number and select phone
+                or text follow-up, we use it to discuss that request with you.
+                The form does not enroll you in automated marketing calls or
+                texts.
               </p>
             </Section>
 
-            <Section title="Your obligations">
-              <ul className="list-disc space-y-2 pl-6">
-                <li>
-                  Provide accurate pickup and delivery addresses, vehicle
-                  information, and contact info.
-                </li>
-                <li>
-                  Disclose the vehicle&apos;s actual condition, including
-                  whether it runs and any oversized modifications. Pricing
-                  depends on accurate vehicle details.
-                </li>
-                <li>
-                  Remove personal belongings from the vehicle before pickup.
-                  Carriers are not licensed to transport household goods inside
-                  the vehicle, and items left inside are not covered by cargo
-                  insurance.
-                </li>
-                <li>
-                  Be present (or designate someone) at pickup and delivery to
-                  inspect the vehicle and sign the bill of lading.
-                </li>
-              </ul>
-            </Section>
-
-            <Section title="Carrier liability and claims">
+            <Section title="Questions and changes">
               <p>
-                The carrier is the legal transporter of your vehicle and is
-                responsible for any damage that occurs in their care. The
-                carrier carries cargo insurance for that purpose. Damage claims
-                must be noted on the bill of lading at delivery; we will help
-                you file the claim with the carrier and follow up until it is
-                resolved, but BladeHaul as a broker is not the insurer.
+                If something on the site looks incorrect or a submission does
+                not work, email{' '}
+                <a href="mailto:info@bladehaul.com" className={linkClass}>
+                  info@bladehaul.com
+                </a>
+                . We will help you check the details. Site information is
+                general; the written terms accepted for your specific shipment
+                control that order.
               </p>
-            </Section>
-
-            <Section title="No guarantee of dispatch time">
               <p>
-                We give you realistic pickup and delivery windows based on
-                current carrier availability for your route. Carrier schedules,
-                weather, breakdowns, and other factors outside our control can
-                shift these windows. We will keep you updated daily.
-              </p>
-            </Section>
-
-            <Section title="Limitation of liability">
-              <p>
-                To the maximum extent allowed by law, BladeHaul&apos;s liability
-                arising from your use of the Site or our broker services is
-                limited to the amount you paid us for the relevant shipment. We
-                are not liable for indirect, incidental, or consequential
-                damages.
-              </p>
-            </Section>
-
-            <Section title="Governing law">
-              <p>
-                These Terms are governed by the laws of the State of Wyoming,
-                USA, without regard to conflict-of-laws principles. Any dispute
-                will be resolved in the courts located in Wyoming.
-              </p>
-            </Section>
-
-            <Section title="Changes to these terms">
-              <p>
-                We may update these Terms from time to time. The effective date
-                at the top tells you when they were last revised. Continued use
-                of the Site after a change means you accept the revised Terms.
+                These website terms follow Texas law and applicable federal law,
+                without limiting consumer rights that cannot be waived. We may
+                update this page and will show the revision date above. A
+                website update does not change an existing transport agreement.
               </p>
             </Section>
 
             <Section title="Contact">
+              <p>BladeHaul Auto Transport LLC, Texas, USA.</p>
               <p>
-                BladeHaul Auto Transport LLC (Wyoming, USA).{' '}
+                Registered office: 11816 Inwood Rd, #1171, Dallas, TX 75244.
+              </p>
+              <p>
                 <a
                   href="mailto:info@bladehaul.com"
-                  className="font-medium text-text underline underline-offset-4 hover:text-orange"
+                  className={`${linkClass} inline-flex min-h-11 items-center`}
                 >
                   info@bladehaul.com
                 </a>
@@ -192,7 +157,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-12">
+    <section className="mt-10 sm:mt-12">
       <h2 className="font-display text-2xl font-semibold tracking-tight text-text sm:text-3xl">
         {title}
       </h2>
