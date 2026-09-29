@@ -34,7 +34,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bladehaul.com';
 
 const TITLE = 'BladeHaul Auto Transport | The Sharpest Way to Ship Your Car';
 const DESCRIPTION =
-  'US car shipping with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed. Get a real quote.';
+  'US car shipping with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed. Preparing to take quote requests.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
