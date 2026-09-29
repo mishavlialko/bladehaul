@@ -82,6 +82,15 @@ export const metadata: Metadata = {
     },
   },
   category: 'business',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: '48x48' },
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/favicon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: [{ url: '/apple-icon', sizes: '192x192', type: 'image/png' }],
+  },
 };
 
 export const viewport: Viewport = {
