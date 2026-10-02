@@ -191,8 +191,8 @@ export default function CoverageRouteScanner({
     featuredRoutes[0];
 
   return (
-    <div className="relative min-w-0">
-      <div aria-hidden="true" className="pointer-events-none absolute -inset-2">
+    <div className="relative min-w-0 overflow-hidden">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <span className="absolute left-0 top-0 h-2.5 w-2.5 border-l border-t border-orange/55" />
         <span className="absolute right-0 top-0 h-2.5 w-2.5 border-r border-t border-orange/55" />
         <span className="absolute bottom-0 left-0 h-2.5 w-2.5 border-b border-l border-orange/55" />
@@ -207,7 +207,7 @@ export default function CoverageRouteScanner({
       <div className="relative mt-3 h-44 w-full sm:h-56 lg:h-52 xl:h-56">
         <svg
           viewBox="0 0 600 240"
-          className="block h-full w-full overflow-visible"
+          className="block h-full w-full overflow-hidden"
           aria-hidden="true"
           focusable="false"
         >
