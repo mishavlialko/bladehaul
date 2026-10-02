@@ -8,7 +8,8 @@ type Metric = {
 const metrics: Metric[] = [
   {
     headline: 'AUTHORIZED broker',
-    detail: 'Property Except HHG · USDOT 6803480 · MC 85480782',
+    // Keep each ID together so wrap lands on the · on narrow screens.
+    detail: 'USDOT\u00A06803480 · MC\u00A085480782',
   },
   {
     headline: 'Daily updates',
@@ -31,16 +32,17 @@ export default function TrustStrip() {
       className="border-b border-white/10 bg-navy text-white"
     >
       <Container>
-        <dl className="grid grid-cols-2 divide-x divide-y divide-white/10 lg:grid-cols-4 lg:divide-y-0 [&>*:nth-child(-n+2)]:border-t-0 [&>*:nth-child(2n-1)]:border-l-0 lg:[&>*]:border-t-0">
+        {/* Outer border frames the strip; divide-* draw internal lines only. */}
+        <dl className="grid grid-cols-2 divide-x divide-y divide-white/10 border border-white/10 lg:grid-cols-4 lg:divide-y-0">
           {metrics.map((metric) => (
             <div
               key={metric.headline}
-              className="flex flex-col gap-2 px-5 py-8 sm:px-7 sm:py-10"
+              className="flex min-h-[8rem] flex-col justify-center gap-1.5 px-4 py-5 sm:min-h-0 sm:gap-2 sm:px-7 sm:py-10"
             >
-              <dt className="font-display text-xl font-semibold tracking-[-0.02em] sm:text-2xl">
+              <dt className="text-balance font-display text-lg font-semibold leading-tight tracking-[-0.02em] sm:text-2xl sm:leading-snug">
                 {metric.headline}
               </dt>
-              <dd className="text-xs text-white/55 sm:text-sm">
+              <dd className="text-pretty text-xs leading-snug text-white/55 sm:text-sm sm:leading-normal">
                 {metric.detail}
               </dd>
             </div>
