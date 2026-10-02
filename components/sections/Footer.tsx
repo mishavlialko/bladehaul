@@ -52,9 +52,9 @@ export default function Footer() {
             <p className="mt-4 text-sm leading-relaxed">
               BladeHaul Auto Transport LLC
               <br />
-              Vehicle transport brokerage — application Pending
+              AUTHORIZED Broker of Property Except HHG
               <br />
-              MC 85480782 (not AUTHORIZED)
+              USDOT 6803480 · MC 85480782
               <br />
               Registered office:
               <br />

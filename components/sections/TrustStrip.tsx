@@ -7,12 +7,12 @@ type Metric = {
 
 const metrics: Metric[] = [
   {
-    headline: 'Daily updates',
-    detail: 'Even on quiet days.',
+    headline: 'AUTHORIZED broker',
+    detail: 'Property Except HHG · USDOT 6803480 · MC 85480782',
   },
   {
-    headline: 'You stay in control',
-    detail: 'We explain the market. You decide what happens next.',
+    headline: 'Daily updates',
+    detail: 'Even on quiet days.',
   },
   {
     headline: 'Your agent',
