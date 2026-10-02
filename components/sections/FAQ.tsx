@@ -12,6 +12,10 @@ type Item = {
 
 const items: Item[] = [
   {
+    q: 'Are you a licensed auto transport broker?',
+    a: 'Yes. BladeHaul Auto Transport LLC is an AUTHORIZED Broker of Property Except HHG (USDOT 6803480, MC 85480782). We arrange vehicle transport with independent motor carriers you approve. This authority does not cover Household Goods.',
+  },
+  {
     q: 'How long does car shipping take?',
     a: 'Most cars cross the country in 5 to 10 days. Door-to-door time depends on distance and carrier availability. We give you a realistic window when we book the load and update you daily.',
   },

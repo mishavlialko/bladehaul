@@ -6,7 +6,7 @@ import Navbar from '@/components/sections/Navbar';
 
 const TERMS_TITLE = 'Website Terms';
 const TERMS_DESCRIPTION =
-  'Simple terms for using the BladeHaul website while we prepare to take vehicle transport quote requests.';
+  'Website terms for BladeHaul Auto Transport LLC, an AUTHORIZED Broker of Property Except HHG (USDOT 6803480, MC 85480782).';
 const TERMS_URL = 'https://bladehaul.com/terms';
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED_DATE = 'September 29, 2026';
+const UPDATED_DATE = 'October 2, 2026';
 const linkClass =
   'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
@@ -57,11 +57,11 @@ export default function TermsPage() {
             <Section title="About BladeHaul">
               <p>
                 BladeHaul Auto Transport LLC is a Texas limited liability
-                company. We are preparing to arrange vehicle transportation as a
-                property broker. Our FMCSA broker authority application is
-                Pending and is not currently AUTHORIZED. When we book a
-                shipment, the independent motor carrier you approve handles the
-                physical transportation.
+                company and an AUTHORIZED Broker of Property Except HHG (USDOT
+                6803480, MC 85480782). We arrange vehicle transportation with
+                independent motor carriers you approve. This authority does not
+                cover Household Goods. The independent motor carrier you approve
+                handles the physical transportation.
               </p>
             </Section>
 

@@ -1,8 +1,8 @@
 import Container from '@/components/shared/Container';
 
 const facts = [
-  'Auto transport experience since 2022',
-  'Experience gained before BladeHaul',
+  'AUTHORIZED Broker of Property Except HHG',
+  'USDOT 6803480 · MC 85480782',
   'Texas-registered LLC',
 ];
 
@@ -19,13 +19,16 @@ export default function About() {
           </h2>
           <div className="mt-8 space-y-5 text-lg leading-relaxed text-white/65">
             <p>
-              BladeHaul is built on hands-on auto transport experience gained
-              since 2022, before the company was formed.
+              BladeHaul Auto Transport LLC is an AUTHORIZED Broker of Property
+              Except HHG (USDOT 6803480, MC 85480782). We arrange US vehicle
+              transport with independent motor carriers — not Household Goods
+              under this authority.
             </p>
             <p>
-              That experience shaped the way we work: one agent handling your
-              shipment, daily updates, and clear options before you make a
-              decision.
+              The company is built on hands-on auto transport experience gained
+              since 2022, before BladeHaul was formed. That experience shaped
+              how we work: one agent handling your shipment, daily updates, and
+              clear options before you decide.
             </p>
             <p>
               We arrange your transport. You approve the carrier and the price.
