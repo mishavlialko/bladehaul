@@ -10,7 +10,7 @@ export default function Hero() {
           engine. Responsive derivatives keep the large master off the page. */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-20 bg-navy"
+        className="pointer-events-none absolute inset-0 -z-20 overflow-hidden bg-navy"
       >
         <Image
           src="/hero-bg-v4-city-upscayl.jpg"

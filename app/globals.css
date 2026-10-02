@@ -5,11 +5,19 @@
 @layer base {
   html {
     color-scheme: light;
+    /* Clip horizontal bleed so body bg-white never shows as a side gutter
+       when a child (blur wash, SVG, off-canvas transform) paints past the
+       visual viewport — especially on iOS WKWebView. */
     overflow-x: clip;
+    max-width: 100%;
   }
 
   body {
     @apply bg-white font-sans text-text antialiased;
+    overflow-x: clip;
+    max-width: 100%;
+    width: 100%;
+    position: relative;
   }
 
   h1,

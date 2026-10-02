@@ -27,7 +27,7 @@ export default function Coverage() {
       >
         <div
           data-coverage-wash
-          className="absolute inset-x-[-6%] inset-y-[16%] bg-[radial-gradient(circle_at_88%_18%,rgba(234,106,17,0.16),transparent_62%),radial-gradient(circle_at_10%_85%,rgba(234,106,17,0.065),transparent_58%)] blur-[48px]"
+          className="absolute inset-0 bg-[radial-gradient(circle_at_88%_18%,rgba(234,106,17,0.16),transparent_62%),radial-gradient(circle_at_10%_85%,rgba(234,106,17,0.065),transparent_58%)] blur-[48px]"
         />
       </div>
 
