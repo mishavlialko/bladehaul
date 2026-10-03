@@ -58,9 +58,9 @@ export default function Footer() {
               <br />
               Registered office:
               <br />
-              11816 Inwood Rd, #1171
+              5410 Big Thicket Ln
               <br />
-              Dallas, TX 75244
+              Royse City, TX 75189
             </p>
             <div className="mt-6 flex gap-3">
               <a

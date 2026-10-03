@@ -50,10 +50,10 @@ const jsonLd = {
       address: {
         '@type': 'PostalAddress',
         addressCountry: 'US',
-        streetAddress: '11816 Inwood Rd, #1171',
-        addressLocality: 'Dallas',
+        streetAddress: '5410 Big Thicket Ln',
+        addressLocality: 'Royse City',
         addressRegion: 'TX',
-        postalCode: '75244',
+        postalCode: '75189',
       },
     },
   ],
