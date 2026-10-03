@@ -117,9 +117,16 @@ export default function TermsPage() {
                   Privacy Policy
                 </Link>{' '}
                 explains how we use your request and how to contact us about
-                your information. Automated text messages are sent only if you
-                check the optional SMS consent box on the quote form. The quote
-                form does not enroll you in automated calls.
+                your information. Automated text messages about your
+                vehicle-shipping quote, including marketing follow-ups, require
+                your prior consent to receive those messages from BladeHaul Auto
+                Transport LLC. Our website collects this consent through an
+                optional SMS checkbox. We may also accept consent collected on
+                our behalf by another quote-request service, provided we can
+                verify that it covers BladeHaul and the messages we send.
+                Receiving your contact information alone does not enroll you in
+                our SMS program. Our website quote form does not enroll you in
+                automated calls.
               </p>
             </Section>
 
@@ -128,12 +135,14 @@ export default function TermsPage() {
               title="BladeHaul Auto Transport LLC SMS Terms"
             >
               <p>
-                By checking the optional SMS consent box and submitting your
-                quote request, you agree to receive automated and personalized
-                text messages about your quote request, including marketing
-                follow-ups. Message frequency varies. Message and data rates may
-                apply. Consent is not required to request a quote or purchase
-                services.
+                Our SMS program provides automated and personalized text
+                messages about your vehicle-shipping quote, including marketing
+                follow-ups. To enroll through our website, check the optional
+                SMS consent box and submit your quote request. Enrollment
+                through another quote-request service requires verifiable
+                consent to receive these messages from BladeHaul Auto Transport
+                LLC. Message frequency varies. Message and data rates may apply.
+                Consent is not required to request a quote or purchase services.
               </p>
               <p>
                 Reply STOP to opt out or HELP for assistance, or contact
