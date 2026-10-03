@@ -233,7 +233,7 @@ export default function PrivacyPage() {
               </p>
               <p>BladeHaul Auto Transport LLC, Texas, USA.</p>
               <p>
-                Registered office: 11816 Inwood Rd, #1171, Dallas, TX 75244.
+                Registered office: 5410 Big Thicket Ln, Royse City, TX 75189.
               </p>
               <p>
                 <a
