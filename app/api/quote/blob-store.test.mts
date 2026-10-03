@@ -67,6 +67,38 @@ test('fresh reads bypass the Blob CDN cache', async () => {
   });
 });
 
+test('Brotli weak ETags from private get() are stored as the strong tag If-Match accepts', async () => {
+  const seen: Record<string, unknown>[] = [];
+  const store = createQuoteBlobStore(
+    'store-test',
+    'development',
+    fakeClient({
+      get: async () => ({
+        statusCode: 200,
+        stream: new Response('{"example":true}').body,
+        blob: { etag: 'W/"strong-etag"', size: 16 },
+      }),
+      put: async (
+        _path: string,
+        _body: string,
+        options: Record<string, unknown>,
+      ) => {
+        seen.push(options);
+        return { etag: '"next-etag"' };
+      },
+      del: async (_path: string, options: Record<string, unknown>) => {
+        seen.push(options);
+      },
+    }),
+  );
+  assert.equal((await store.read(path))?.etag, '"strong-etag"');
+  await store.write(path, { example: false }, 'W/"strong-etag"');
+  assert.equal(await store.remove(path, 'W/"strong-etag"'), true);
+  assert.equal(seen[0].ifMatch, '"strong-etag"');
+  assert.equal(seen[0].allowOverwrite, true);
+  assert.equal(seen[1].ifMatch, '"strong-etag"');
+});
+
 test('generic create collision/lost-response is reconciled only when a durable object can be read', async () => {
   const store = createQuoteBlobStore(
     'store-test',

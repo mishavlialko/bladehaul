@@ -4,6 +4,14 @@ import type { QuoteStore } from '@/lib/quote-outbox';
 const STORE_TIMEOUT_MS = 10_000;
 const MAX_RECORD_BYTES = 65_536;
 
+// Private GETs are Brotli-compressed, so the HTTP ETag is weak (`W/"<hash>"`).
+// put/head/list and If-Match use the strong tag. RFC 9110 strong comparison
+// never matches a weak validator, so passing the get() ETag to ifMatch 412s
+// on every lease/update. The opaque tag is the same; drop only the weak prefix.
+export function etagForMatch(etag: string): string {
+  return etag.replace(/^W\//i, '');
+}
+
 export function createQuoteBlobStore(
   storeId: string,
   namespace: string,
@@ -39,7 +47,10 @@ export function createQuoteBlobStore(
     const text = await new Response(result.stream).text();
     if (Buffer.byteLength(text) > MAX_RECORD_BYTES)
       throw new Error('quote_blob_too_large');
-    return { value: JSON.parse(text) as T, etag: result.blob.etag };
+    return {
+      value: JSON.parse(text) as T,
+      etag: etagForMatch(result.blob.etag),
+    };
   }
   return {
     read: readRecord,
@@ -51,7 +62,7 @@ export function createQuoteBlobStore(
           access: 'private',
           addRandomSuffix: false,
           allowOverwrite: etag !== null,
-          ...(etag === null ? {} : { ifMatch: etag }),
+          ...(etag === null ? {} : { ifMatch: etagForMatch(etag) }),
           contentType: 'application/json',
           cacheControlMaxAge: 60,
         });
@@ -68,7 +79,7 @@ export function createQuoteBlobStore(
     async remove(path, etag) {
       checkPath(path);
       try {
-        await client.del(path, { ...options(), ifMatch: etag });
+        await client.del(path, { ...options(), ifMatch: etagForMatch(etag) });
         return true;
       } catch (error) {
         if (error instanceof BlobPreconditionFailedError) return false;
