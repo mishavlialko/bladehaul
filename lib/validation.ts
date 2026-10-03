@@ -30,7 +30,9 @@ export const BODY_TYPE_LABELS: Record<(typeof BODY_TYPES)[number], string> = {
   hatchback: 'Hatchback',
   other: 'Other',
 };
-export const QUOTE_CONSENT_VERSION = '2026-09-29';
+// This version covers optional automated quote-related SMS, including marketing.
+// Earlier phone-follow-up consent must never be treated as this SMS consent.
+export const QUOTE_CONSENT_VERSION = '2026-10-03-sms-v1';
 export const QUOTE_TIME_ZONE = 'America/Chicago';
 
 const zipRegex = /^\d{5}$/;
@@ -134,6 +136,11 @@ export const quoteSchema = z
     }),
     source: z.enum(QUOTE_SOURCES),
     website: z.string().max(200).optional(),
+  })
+  .refine(({ consentTcpa, phone }) => !consentTcpa || !!phone, {
+    path: ['phone'],
+    message:
+      'Enter a phone number to receive text messages, or uncheck SMS consent',
   })
   .refine(
     ({ vehicleYear, vin }) => {

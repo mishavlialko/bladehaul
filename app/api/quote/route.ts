@@ -61,7 +61,12 @@ export async function POST(req: Request) {
     return response(
       {
         success: false,
-        error: 'Please check the highlighted details.',
+        // Older open tabs cannot map the hidden consentVersion field to a UI error.
+        error: parsed.error.issues.some(
+          (issue) => issue.path[0] === 'consentVersion',
+        )
+          ? 'Refresh the page to see the current SMS consent choices before sending your request.'
+          : 'Please check the highlighted details.',
         issues: parsed.error.flatten(),
       },
       400,

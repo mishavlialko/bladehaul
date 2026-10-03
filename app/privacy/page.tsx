@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED_DATE = 'September 29, 2026';
+const UPDATED_DATE = 'October 3, 2026';
 const linkClass =
   'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
@@ -84,10 +84,10 @@ export default function PrivacyPage() {
               <p>
                 We also use information to prevent duplicate requests and abuse,
                 resolve problems, and meet applicable recordkeeping
-                requirements. Providing a phone number and choosing phone or
-                text follow-up are optional. We use that number to discuss this
-                request when you select that option. The form does not enroll
-                you in automated marketing calls or texts.
+                requirements. Providing a phone number and choosing SMS
+                follow-up are optional. Automated text messages are sent only if
+                you check the optional SMS consent box on the quote form. The
+                quote form does not enroll you in automated calls.
               </p>
             </Section>
 
@@ -112,6 +112,20 @@ export default function PrivacyPage() {
                   respond to fraud, legal claims, or a security incident.
                 </li>
               </ul>
+            </Section>
+
+            <Section title="SMS privacy">
+              <p>
+                No mobile information will be shared with third parties or
+                affiliates for their marketing or promotional purposes. SMS
+                opt-in data and consent are not sold or transferred for
+                third-party marketing. Exception: our messaging and technical
+                service providers may process mobile numbers and related message
+                data only as needed to deliver BladeHaul’s texts and to honor
+                STOP/HELP and other opt-out requests. Contact details shared
+                with a motor carrier you approve are for pickup and delivery of
+                that shipment only, not for the carrier’s marketing.
+              </p>
             </Section>
 
             <Section title="Site operation and browser storage">

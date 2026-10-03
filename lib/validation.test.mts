@@ -166,6 +166,7 @@ test('preserves genuine source and requires a current consent version and UUIDv4
   const result = quoteSchema.safeParse({
     ...validQuote(),
     source: 'hero-mini',
+    phone: '+1 (555) 123-4567',
     consentTcpa: true,
   });
   assert.equal(result.success, true);
@@ -183,6 +184,37 @@ test('preserves genuine source and requires a current consent version and UUIDv4
   );
   assert.equal(
     quoteSchema.safeParse({ ...validQuote(), requestId: 'not-a-uuid' }).success,
+    false,
+  );
+});
+
+test('SMS consent requires a valid phone; providing a phone alone never opts in', () => {
+  for (const phone of ['', undefined, '123']) {
+    const result = quoteSchema.safeParse({
+      ...validQuote(),
+      phone,
+      consentTcpa: true,
+    });
+    assert.equal(result.success, false);
+    if (!result.success)
+      assert.ok(result.error.issues.some((issue) => issue.path[0] === 'phone'));
+  }
+  const result = quoteSchema.safeParse({
+    ...validQuote(),
+    phone: '+1 (555) 123-4567',
+  });
+  assert.equal(result.success, true);
+  if (result.success) assert.equal(result.data.consentTcpa, false);
+});
+
+test('rejects old phone-follow-up consent instead of upgrading it to marketing SMS', () => {
+  assert.equal(
+    quoteSchema.safeParse({
+      ...validQuote(),
+      consentVersion: '2026-09-29',
+      consentTcpa: true,
+      phone: '+1 (555) 123-4567',
+    }).success,
     false,
   );
 });

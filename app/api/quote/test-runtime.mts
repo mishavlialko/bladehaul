@@ -49,7 +49,7 @@ export const QUOTE: QuotePayload = {
   email: 'customer@example.com',
   phone: '',
   consentTcpa: false,
-  consentVersion: '2026-09-29',
+  consentVersion: '2026-10-03-sms-v1',
   source: 'main-form',
 };
 

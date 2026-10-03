@@ -96,7 +96,10 @@ test('message is readable plain text, has Reply-To and includes actual consent/b
   );
   assert.deepEqual(email.reply_to, [QUOTE.email]);
   assert.match(email.text, /Body type: sedan/);
-  assert.match(email.text, /Phone follow-up consent: No/);
+  assert.match(
+    email.text,
+    /Automated quote SMS consent \(including marketing follow-ups\): No/,
+  );
   assert.match(email.text, /<script>example<\/script>/);
   assert.equal('html' in email, false);
 });
@@ -436,4 +439,78 @@ test('health cannot turn green from a clean later batch while an earlier record 
     ),
     false,
   );
+});
+
+test('stores the exact SMS consent version, flag, source and server receipt time without inferring consent', async () => {
+  for (const consentTcpa of [false, true]) {
+    const store = new MemoryStore();
+    const quote = { ...QUOTE, consentTcpa, phone: '+1 (555) 123-4567' };
+    await enqueueQuote(
+      store,
+      'development',
+      QUOTE_ID,
+      quote,
+      EMAIL_SETTINGS,
+      START,
+    );
+    const record = await saved(store);
+    assert.equal(record.quote.consentTcpa, consentTcpa);
+    assert.equal(record.quote.consentVersion, '2026-10-03-sms-v1');
+    assert.equal(record.quote.source, quote.source);
+    assert.equal(record.receivedAt, new Date(START).toISOString());
+    assert.ok(
+      record.email.text.includes(
+        `Automated quote SMS consent (including marketing follow-ups): ${consentTcpa ? 'Yes' : 'No'}`,
+      ),
+    );
+    assert.ok(
+      record.email.text.includes('Consent notice version: 2026-10-03-sms-v1'),
+    );
+  }
+});
+
+test('legacy records retry their original email without upgrading old phone consent', async () => {
+  const store = new MemoryStore();
+  await enqueueQuote(
+    store,
+    'development',
+    QUOTE_ID,
+    QUOTE,
+    EMAIL_SETTINGS,
+    START,
+  );
+  const stored = await store.read<QuoteRecord>(path);
+  assert.ok(stored);
+  const originalText =
+    'Phone follow-up consent: Yes\nConsent notice version: 2026-09-29';
+  const legacy = {
+    ...stored.value,
+    quote: {
+      ...stored.value.quote,
+      consentTcpa: true,
+      consentVersion: '2026-09-29',
+    },
+    email: { ...stored.value.email, text: originalText },
+  };
+  await store.write(path, legacy, stored.etag);
+  let sends = 0;
+  await processQuote(
+    {
+      store,
+      namespace: 'development',
+      now: () => START,
+      provider: provider({
+        send: async (email) => {
+          sends += 1;
+          assert.equal(email.text, originalText);
+          return { kind: 'accepted', id: 'legacy-email' };
+        },
+      }),
+    },
+    QUOTE_ID,
+  );
+  assert.equal(sends, 1);
+  const record = await saved(store);
+  assert.equal(record.quote.consentVersion, '2026-09-29');
+  assert.equal(record.email.text, originalText);
 });

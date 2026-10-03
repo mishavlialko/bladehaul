@@ -101,7 +101,7 @@ export default function QuoteStepContact() {
       <Field
         id={phoneId}
         label="Phone (optional)"
-        helper="Prefer a call or text? Add your number and select the option below."
+        helper="For optional text messages, add your number and select the SMS consent box below."
         error={errors.phone?.message}
       >
         <Controller
@@ -140,15 +140,39 @@ export default function QuoteStepContact() {
             className="mt-1 h-5 w-5 shrink-0 accent-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
           />
           <span>
-            Call or text me about this quote at the number provided (optional).
+            I agree to receive automated and personalized text messages from
+            BladeHaul Auto Transport LLC about my quote request, including
+            marketing follow-ups. Message frequency varies. Message and data
+            rates may apply. Reply STOP to opt out or HELP for assistance.
+            Consent is not required to request a quote or purchase services. See
+            our{' '}
+            <Link
+              href="/terms#sms-terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+            >
+              SMS Terms<span className="sr-only"> (opens in a new tab)</span>
+            </Link>{' '}
+            and{' '}
+            <Link
+              href="/privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
+            >
+              Privacy Policy
+              <span className="sr-only"> (opens in a new tab)</span>
+            </Link>
+            .
           </span>
         </label>
         <p
           id={`${consentId}-helper`}
           className="mt-1 text-sm leading-relaxed text-text-faint"
         >
-          You can get your quote by email without selecting this option. Message
-          and data rates may apply. Reply STOP to texts to opt out.
+          You can get your quote by email without selecting this optional SMS
+          consent box.
         </p>
       </div>
 

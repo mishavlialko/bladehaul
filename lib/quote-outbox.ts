@@ -139,7 +139,7 @@ export function buildQuoteEmail(
       'Additional information supplied by the customer:',
       plain(quote.additionalDetails, true),
       '',
-      `Phone follow-up consent: ${quote.consentTcpa === true ? 'Yes' : 'No'}`,
+      `Automated quote SMS consent (including marketing follow-ups): ${quote.consentTcpa === true ? 'Yes' : 'No'}`,
       `Consent notice version: ${quote.consentVersion}`,
       `Source: ${quote.source ?? 'main-form'}`,
       '',

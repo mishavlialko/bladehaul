@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED_DATE = 'October 2, 2026';
+const UPDATED_DATE = 'October 3, 2026';
 const linkClass =
   'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
@@ -117,10 +117,35 @@ export default function TermsPage() {
                   Privacy Policy
                 </Link>{' '}
                 explains how we use your request and how to contact us about
-                your information. If you provide a phone number and select phone
-                or text follow-up, we use it to discuss that request with you.
-                The form does not enroll you in automated marketing calls or
-                texts.
+                your information. Automated text messages are sent only if you
+                check the optional SMS consent box on the quote form. The quote
+                form does not enroll you in automated calls.
+              </p>
+            </Section>
+
+            <Section
+              id="sms-terms"
+              title="BladeHaul Auto Transport LLC SMS Terms"
+            >
+              <p>
+                By checking the optional SMS consent box and submitting your
+                quote request, you agree to receive automated and personalized
+                text messages about your quote request, including marketing
+                follow-ups. Message frequency varies. Message and data rates may
+                apply. Consent is not required to request a quote or purchase
+                services.
+              </p>
+              <p>
+                Reply STOP to opt out or HELP for assistance, or contact
+                info@bladehaul.com. We also honor other clear requests to stop
+                text messages. After opting out, you may receive one
+                confirmation text, but no further program texts unless you
+                enroll again. Carriers are not liable for delayed or undelivered
+                messages. See our{' '}
+                <Link href="/privacy" className={linkClass}>
+                  Privacy Policy
+                </Link>{' '}
+                for information about how we handle your data.
               </p>
             </Section>
 
@@ -166,14 +191,16 @@ export default function TermsPage() {
 }
 
 function Section({
+  id,
   title,
   children,
 }: {
+  id?: string;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-10 sm:mt-12">
+    <section id={id} className="mt-10 scroll-mt-32 sm:mt-12">
       <h2 className="font-display text-2xl font-semibold tracking-tight text-text sm:text-3xl">
         {title}
       </h2>
