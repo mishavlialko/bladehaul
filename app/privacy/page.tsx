@@ -73,6 +73,18 @@ export default function PrivacyPage() {
               </p>
             </Section>
 
+            <Section title="Information from quote-request services">
+              <p>
+                If you request vehicle-shipping quotes through another service,
+                we may receive your contact details, shipment request, and any
+                consent record supplied with that request. We use this
+                information to respond within the scope of your request and any
+                applicable consent. Obtaining your information from another
+                service does not by itself establish permission to send
+                automated text messages.
+              </p>
+            </Section>
+
             <Section title="How we use it">
               <p>
                 We use your details to review the route and vehicle, prepare
@@ -85,9 +97,16 @@ export default function PrivacyPage() {
                 We also use information to prevent duplicate requests and abuse,
                 resolve problems, and meet applicable recordkeeping
                 requirements. Providing a phone number and choosing SMS
-                follow-up are optional. Automated text messages are sent only if
-                you check the optional SMS consent box on the quote form. The
-                quote form does not enroll you in automated calls.
+                follow-up on our website are optional. Automated text messages
+                about your quote, including marketing follow-ups, require your
+                prior consent to receive those messages from BladeHaul Auto
+                Transport LLC. Our website collects this consent through an
+                optional SMS checkbox. We may also accept consent collected on
+                our behalf by another quote-request service, provided we can
+                verify that it covers BladeHaul and the messages we send.
+                Receiving your contact information alone does not enroll you in
+                our SMS program. Our website quote form does not enroll you in
+                automated calls.
               </p>
             </Section>
 
