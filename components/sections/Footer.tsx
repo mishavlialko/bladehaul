@@ -56,8 +56,6 @@ export default function Footer() {
               <br />
               USDOT 6803480 · MC 85480782
               <br />
-              Registered office:
-              <br />
               5410 Big Thicket Ln
               <br />
               Royse City, TX 75189
