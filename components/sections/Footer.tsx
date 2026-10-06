@@ -56,9 +56,9 @@ export default function Footer() {
               <br />
               USDOT 6803480 · MC 85480782
               <br />
-              5410 Big Thicket Ln
+              11816 Inwood Rd, #1171
               <br />
-              Royse City, TX 75189
+              Dallas, TX 75244
             </p>
             <div className="mt-6 flex gap-3">
               <a

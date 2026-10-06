@@ -232,7 +232,7 @@ export default function PrivacyPage() {
                 additional notice or consent required by law.
               </p>
               <p>BladeHaul Auto Transport LLC, Texas, USA.</p>
-              <p>5410 Big Thicket Ln, Royse City, TX 75189.</p>
+              <p>11816 Inwood Rd, #1171, Dallas, TX 75244.</p>
               <p>
                 <a
                   href="mailto:info@bladehaul.com"
