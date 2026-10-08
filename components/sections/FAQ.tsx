@@ -29,11 +29,11 @@ const items: Item[] = [
   },
   {
     q: 'What if carrier availability or market conditions change?',
-    a: 'If anything changes before dispatch, your agent explains the situation and walks you through the available options. You decide how to proceed. We confirm the carrier, price, and agreed booking details in writing before taking a deposit.',
+    a: 'If anything changes before dispatch, your agent explains the situation and walks you through the available options. You decide how to proceed. We confirm the carrier, price, and agreed booking details in writing before taking any payment.',
   },
   {
     q: 'When do I pay, and who handles my shipment?',
-    a: 'Your quote is free. Your transport order sets out the broker commission, carrier payment, and cancellation terms before you book. The deposit normally equals the agreed broker commission and is ordinarily collected after pickup is verified. Your agent stays with you from quote to delivery, with daily updates.',
+    a: 'Your quote is free. Your transport order sets out the spot reservation amount, carrier payment, and cancellation terms before you book. The spot reservation amount is ordinarily collected after your carrier is confirmed, before pickup. Your agent stays with you from quote to delivery, with daily updates.',
   },
   {
     q: 'Open trailer vs enclosed trailer, which do I need?',
