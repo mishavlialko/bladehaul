@@ -35,7 +35,7 @@ const jsonLd = {
       url: SITE_URL,
       email: 'info@bladehaul.com',
       description:
-        'AUTHORIZED Broker of Property Except HHG (USDOT 6803480, MC 85480782). Same-agent US car shipping with daily updates and clear options. No deposit on this website.',
+        'AUTHORIZED Broker of Property Except HHG (USDOT 6803480, MC 85480782). Same-agent US car shipping with daily updates and clear options. No payment on this website.',
       areaServed: {
         '@type': 'Country',
         name: 'United States',

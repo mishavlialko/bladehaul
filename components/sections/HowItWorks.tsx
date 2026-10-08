@@ -15,7 +15,7 @@ const steps: Step[] = [
   {
     number: '02',
     title: 'Confirm your carrier',
-    body: 'Your agent reviews the options with you. Once you decide, we confirm the carrier, price, and booking details in writing before any deposit.',
+    body: 'Your agent reviews the options with you. Once you decide, we confirm the carrier, price, and booking details in writing before any payment.',
   },
   {
     number: '03',

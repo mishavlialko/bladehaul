@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED_DATE = 'October 3, 2026';
+const UPDATED_DATE = 'October 8, 2026';
 const linkClass =
   'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
@@ -82,11 +82,11 @@ export default function TermsPage() {
 
             <Section title="Booking and payment">
               <p>
-                Before paid search or booking begins, you receive a separate
-                transport agreement. It sets out the search window, broker
-                commission, carrier balance, and cancellation rules for your
-                order. Review and accept that agreement before authorizing the
-                work.
+                Before any payment is collected or booking begins, you receive a
+                separate transport agreement. It sets out the search window,
+                spot reservation amount, carrier balance, and cancellation rules
+                for your order. Review and accept that agreement before
+                authorizing the work.
               </p>
               <p>
                 This website does not collect card details or take payments. Do

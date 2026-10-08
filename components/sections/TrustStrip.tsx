@@ -21,7 +21,7 @@ const metrics: Metric[] = [
     detail: 'Quote to delivery, same person.',
   },
   {
-    headline: 'No deposit',
+    headline: 'No payment',
     detail: 'Until your carrier is confirmed.',
   },
 ];

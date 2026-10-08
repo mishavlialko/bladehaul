@@ -34,7 +34,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://bladehaul.com';
 
 const TITLE = 'BladeHaul Auto Transport | The Sharpest Way to Ship Your Car';
 const DESCRIPTION =
-  'US car shipping with the same agent from quote to delivery, daily updates, clear options, and no deposit until your carrier is confirmed. AUTHORIZED Broker of Property Except HHG — USDOT 6803480, MC 85480782.';
+  'US car shipping with the same agent from quote to delivery, daily updates, clear options, and no payment until your carrier is confirmed. AUTHORIZED Broker of Property Except HHG — USDOT 6803480, MC 85480782.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
