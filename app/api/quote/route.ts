@@ -1,12 +1,16 @@
 import { after, NextResponse } from 'next/server';
+import { checkBotId } from 'botid/server';
 import { quoteSchema } from '@/lib/validation';
 import { createQuoteBlobStore } from '@/lib/quote-blob-store';
 import {
   getQuoteEmailConfig,
+  getQuoteNotificationConfig,
   getQuoteStorageConfig,
   quoteAllowedOrigins,
 } from '@/lib/quote-config';
-import { enqueueQuote, processQuote } from '@/lib/quote-outbox';
+import { processQuote } from '@/lib/quote-outbox';
+import { admitQuote } from '@/lib/quote-intake';
+import { getQuoteSendBudgetLimits } from '@/lib/quote-budget';
 import { hasTrustedOrigin, readQuoteBody } from '@/lib/quote-request';
 import { createResendProvider } from './delivery';
 
@@ -79,15 +83,44 @@ export async function POST(req: Request) {
     );
   try {
     const { namespace, storeId } = getQuoteStorageConfig();
-    const email = getQuoteEmailConfig();
+    const notification = getQuoteNotificationConfig();
     const store = createQuoteBlobStore(storeId, namespace);
-    const result = await enqueueQuote(
-      store,
-      namespace,
+    const result = await admitQuote(
+      {
+        store,
+        namespace,
+        notification,
+        verifyBrowser: () =>
+          checkBotId({
+            advancedOptions: { checkLevel: 'basic' },
+            developmentOptions: { isDevelopment: false },
+          }),
+      },
       requestId,
       quote,
-      email,
     );
+    if (result.kind === 'rejected')
+      return response(
+        {
+          success: false,
+          error:
+            'We could not send your request. Your details are still here. Please try again.',
+        },
+        403,
+      );
+    if (result.kind === 'unavailable') return unavailable();
+    if (result.kind === 'limited') {
+      const limited = response(
+        {
+          success: false,
+          error:
+            'We are receiving many requests. Your details are still here. Please try again later or email us.',
+        },
+        429,
+      );
+      limited.headers.set('Retry-After', String(result.retryAfterSeconds));
+      return limited;
+    }
     if (result.kind === 'conflict')
       return response(
         {
@@ -98,8 +131,18 @@ export async function POST(req: Request) {
       );
     after(async () => {
       try {
+        const email = getQuoteEmailConfig();
+        const limits = getQuoteSendBudgetLimits();
         await processQuote(
-          { store, namespace, provider: createResendProvider(email.apiKey) },
+          {
+            store,
+            namespace,
+            provider: createResendProvider(email.apiKey, {
+              store,
+              namespace,
+              limits,
+            }),
+          },
           requestId,
         );
       } catch {

@@ -13,13 +13,12 @@ export function getQuoteStorageConfig(env: Environment = process.env) {
   return { namespace: environment, storeId };
 }
 
-export function getQuoteEmailConfig(env: Environment = process.env) {
-  const apiKey = env.RESEND_API_KEY?.trim();
+export function getQuoteNotificationConfig(env: Environment = process.env) {
   const from = env.RESEND_FROM_EMAIL?.trim();
   const recipient = env.ADMIN_EMAIL?.trim();
   // Explicit settings are required; a missing sender or recipient must not
   // silently redirect customer information to an old/default account.
-  if (!apiKey || !from || !recipient) throw new Error('quote_email_missing');
+  if (!from || !recipient) throw new Error('quote_notification_missing');
   if (
     !/^(?:[a-zA-Z0-9._+-]+@bladehaul\.com|BladeHaul <[a-zA-Z0-9._+-]+@bladehaul\.com>)$/.test(
       from,
@@ -30,7 +29,13 @@ export function getQuoteEmailConfig(env: Environment = process.env) {
     throw new Error('quote_recipient_invalid');
   if (env.VERCEL_ENV === 'production' && recipient !== 'info@bladehaul.com')
     throw new Error('quote_production_recipient_invalid');
-  return { apiKey, from, recipient };
+  return { from, recipient };
+}
+
+export function getQuoteEmailConfig(env: Environment = process.env) {
+  const apiKey = env.RESEND_API_KEY?.trim();
+  if (!apiKey) throw new Error('quote_email_missing');
+  return { ...getQuoteNotificationConfig(env), apiKey };
 }
 
 export function quoteAllowedOrigins(

@@ -16,7 +16,7 @@ export default function FinalCTA() {
           </div>
           <div className="mt-10 flex justify-center">
             <Button href="#quote" size="lg">
-              Get a Real Quote
+              Request a free quote
             </Button>
           </div>
         </div>

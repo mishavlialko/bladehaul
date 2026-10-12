@@ -78,7 +78,7 @@ export default function FAQ() {
         {/* Two-column on desktop: sticky heading left, accordion right.
             Fills the band without giving up the left-aligned editorial set. */}
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-[2fr_3fr] lg:gap-16">
-          <div className="lg:sticky lg:top-28 lg:self-start">
+          <div className="lg:sticky lg:top-[calc(11rem+env(safe-area-inset-top))] lg:self-start">
             <h2 className="max-w-2xl font-display text-3xl font-semibold leading-[1.02] tracking-[-0.03em] sm:text-4xl lg:text-5xl">
               Questions we get asked most
             </h2>

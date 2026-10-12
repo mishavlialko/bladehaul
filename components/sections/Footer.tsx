@@ -17,7 +17,7 @@ const columns: FooterColumn[] = [
     heading: 'Company',
     links: [
       { label: 'About', href: '/#about' },
-      { label: 'Contact', href: 'mailto:info@bladehaul.com' },
+      { label: 'Contact', href: '/contact' },
     ],
   },
   {
@@ -26,6 +26,9 @@ const columns: FooterColumn[] = [
       { label: 'How It Works', href: '/#how-it-works' },
       { label: 'Routes', href: '/#routes' },
       { label: 'FAQ', href: '/#faq' },
+      { label: 'Car Shipping Cost', href: '/car-shipping-cost' },
+      { label: 'Open vs. Enclosed', href: '/open-vs-enclosed-car-shipping' },
+      { label: 'Booking and Payment', href: '/booking-and-payment' },
     ],
   },
   {
@@ -55,6 +58,8 @@ export default function Footer() {
               AUTHORIZED Broker of Property Except HHG
               <br />
               USDOT 6803480 · MC 85480782
+              <br />
+              Mailing address:
               <br />
               11816 Inwood Rd, #1171
               <br />

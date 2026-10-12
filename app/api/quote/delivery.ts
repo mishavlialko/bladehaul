@@ -1,6 +1,9 @@
 import type { QuoteEmailProvider } from '@/lib/quote-outbox';
+import type { QuoteStore } from '@/lib/quote-outbox';
+import { reserveQuoteBudget, type BudgetLimits } from '@/lib/quote-budget';
 
 export const DELIVERY_TIMEOUT_MS = 10_000;
+export const SEND_RESERVATION_TIMEOUT_MS = 6_000;
 const API_ORIGIN = 'https://api.resend.com';
 const EMAIL_ID = /^[a-zA-Z0-9_-]{1,100}$/;
 const EVENTS = new Set([
@@ -31,11 +34,62 @@ function failure(status: number) {
 
 export function createResendProvider(
   apiKey: string,
+  budget: {
+    store: QuoteStore;
+    namespace: string;
+    limits: BudgetLimits;
+    now?: () => number;
+    reservationTimeoutMs?: number;
+  },
   request: typeof fetch = fetch,
   timeoutMs = DELIVERY_TIMEOUT_MS,
 ): QuoteEmailProvider {
   return {
     async send(email, idempotencyKey) {
+      // The quota counts recipients. The quote path sends exactly one internal
+      // notification, never customer/CC/BCC mail or a caller-selected batch.
+      if (email.to.length !== 1)
+        return { kind: 'permanent', code: 'email_recipient_count_invalid' };
+      let reservationTimer: ReturnType<typeof setTimeout> | undefined;
+      try {
+        const clock = budget.now ?? Date.now;
+        const wait = budget.reservationTimeoutMs ?? SEND_RESERVATION_TIMEOUT_MS;
+        if (
+          !Number.isSafeInteger(wait) ||
+          wait <= 0 ||
+          wait > SEND_RESERVATION_TIMEOUT_MS
+        )
+          throw new Error('quote_budget_deadline_invalid');
+        const startedAt = clock();
+        const latestSendAt = startedAt + wait;
+        // Stamp at the latest permissible HTTP start, then refuse a late send.
+        // Slow CAS responses cannot age a reservation before its actual attempt.
+        const reserved = await Promise.race([
+          reserveQuoteBudget(
+            budget.store,
+            budget.namespace,
+            'send',
+            budget.limits,
+            startedAt,
+            latestSendAt,
+          ),
+          new Promise<never>((_, reject) => {
+            reservationTimer = setTimeout(
+              () => reject(new Error('quote_budget_timeout')),
+              wait,
+            );
+          }),
+        ]);
+        if (clock() > latestSendAt) throw new Error('quote_budget_timeout');
+        // Do not automatically carry an attack backlog into tomorrow's quota.
+        // The lead remains durable and maintenance surfaces manual review.
+        if (!reserved.allowed)
+          return { kind: 'permanent', code: 'email_budget_exhausted' };
+      } catch {
+        return { kind: 'permanent', code: 'email_budget_unavailable' };
+      } finally {
+        clearTimeout(reservationTimer);
+      }
       try {
         const response = await request(`${API_ORIGIN}/emails`, {
           method: 'POST',

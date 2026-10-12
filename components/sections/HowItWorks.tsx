@@ -9,7 +9,7 @@ type Step = {
 const steps: Step[] = [
   {
     number: '01',
-    title: 'Get a real quote',
+    title: 'Request a free quote',
     body: 'We prepare your quote using your route, vehicle, timing, and current carrier rates.',
   },
   {

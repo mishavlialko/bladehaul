@@ -11,6 +11,7 @@ import { quotePath } from '@/lib/quote-outbox';
 import type { QuoteEmailProvider, QuoteRecord } from '@/lib/quote-outbox';
 import { authorizedMaintenance, UUID_V4 } from '@/lib/quote-request';
 import { createResendProvider } from '@/app/api/quote/delivery';
+import { getQuoteSendBudgetLimits } from '@/lib/quote-budget';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -63,7 +64,11 @@ export async function GET(request: Request) {
       return response({ error: 'Invalid maintenance action' }, 400);
     let provider: QuoteEmailProvider | undefined;
     try {
-      provider = createResendProvider(getQuoteEmailConfig().apiKey);
+      provider = createResendProvider(getQuoteEmailConfig().apiKey, {
+        store,
+        namespace,
+        limits: getQuoteSendBudgetLimits(),
+      });
     } catch {
       // Cleanup and the private heartbeat must continue during a mail-configuration outage.
     }

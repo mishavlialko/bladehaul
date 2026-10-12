@@ -157,7 +157,7 @@ export default function MiniQuoteForm() {
           type="submit"
           className="group relative mt-6 flex h-14 w-full items-center justify-center rounded-full bg-orange pl-7 pr-3 text-base font-medium tracking-tight text-navy transition duration-300 ease-out-quart hover:bg-orange-dark hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange active:scale-[0.985] active:text-white"
         >
-          <span className="absolute left-7">Get a Real Quote</span>
+          <span className="absolute left-7">Request a free quote</span>
           <span
             aria-hidden="true"
             className="ml-auto flex h-10 w-10 items-center justify-center rounded-full bg-navy/10 transition-[transform,background-color] duration-300 ease-out-quart group-hover:translate-x-1 group-hover:scale-[1.06] group-hover:bg-white/15"

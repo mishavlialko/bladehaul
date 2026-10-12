@@ -145,7 +145,7 @@ test('environment mismatch fails closed and preview never uses the production na
 test('missing or malformed delivery settings cannot silently fall back to an old recipient', () => {
   assert.throws(
     () => getQuoteEmailConfig({ RESEND_API_KEY: 'test-key' }),
-    /email_missing/,
+    /notification_missing/,
   );
   assert.throws(
     () =>

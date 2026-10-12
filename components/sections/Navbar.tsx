@@ -10,6 +10,7 @@ const navLinks = [
   { label: 'Routes', href: '/#routes' },
   { label: 'FAQ', href: '/#faq' },
   { label: 'About', href: '/#about' },
+  { label: 'Contact', href: '/contact' },
 ];
 
 // 4px threshold avoids toggling on micro-scrolls (touch jitter, trackpad inertia tail).
@@ -250,7 +251,7 @@ export default function Navbar() {
             size="lg"
             className="hidden lg:inline-flex lg:h-14 lg:px-7 lg:text-lg"
           >
-            Get a Real Quote
+            Request a free quote
           </Button>
 
           {/* Mobile hamburger trigger. */}
@@ -375,7 +376,7 @@ export default function Navbar() {
               tabIndex={menuOpen ? 0 : -1}
               className="h-14 text-lg"
             >
-              Get a Real Quote
+              Request a free quote
             </Button>
             <p className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
               <a

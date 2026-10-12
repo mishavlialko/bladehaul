@@ -15,6 +15,7 @@ import QuoteProgress, {
 import QuoteStepContact from '@/components/sections/QuoteStepContact';
 import QuoteStepRoute from '@/components/sections/QuoteStepRoute';
 import QuoteStepVehicle from '@/components/sections/QuoteStepVehicle';
+import { parseQuoteRetryAfter, submitQuoteRequest } from '@/lib/quote-submit';
 import {
   QUOTE_CONSENT_VERSION,
   quoteSchema,
@@ -51,10 +52,17 @@ function createRequestId() {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
+function retryDeadline(waitSeconds: number) {
+  return Date.now() + waitSeconds * 1000;
+}
+
 export default function QuoteForm() {
   const [step, setStep] = useState<StepIndex>(0);
   const [receiptId, setReceiptId] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [retryAfterSeconds, setRetryAfterSeconds] = useState(0);
+  const retryAfterUntil = useRef(0);
+  const isCoolingDown = retryAfterSeconds > 0;
   const headingRef = useRef<HTMLHeadingElement>(null);
   const pendingFocus = useRef<keyof QuoteInput | null>(null);
   const submissionInFlight = useRef(false);
@@ -62,6 +70,16 @@ export default function QuoteForm() {
     fingerprint: string;
     requestId: string;
   } | null>(null);
+
+  useEffect(() => {
+    if (!isCoolingDown) return;
+    const interval = window.setInterval(() => {
+      setRetryAfterSeconds(
+        Math.max(0, Math.ceil((retryAfterUntil.current - Date.now()) / 1000)),
+      );
+    }, 1000);
+    return () => window.clearInterval(interval);
+  }, [isCoolingDown]);
 
   const methods = useForm<QuoteInput>({
     resolver: zodResolver(quoteSchema),
@@ -207,6 +225,7 @@ export default function QuoteForm() {
 
   const onSubmit = async (values: QuoteInput) => {
     setSubmitError(null);
+    retryAfterUntil.current = 0;
     const fingerprint = JSON.stringify({ ...values, requestId: undefined });
     const requestId =
       retryRequest.current?.fingerprint === fingerprint
@@ -216,16 +235,23 @@ export default function QuoteForm() {
           : values.requestId;
     retryRequest.current = { fingerprint, requestId };
     setValue('requestId', requestId);
-    const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), 20000);
     try {
-      const res = await fetch('/api/quote', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ ...values, requestId }),
-        signal: controller.signal,
-      });
-      const body = await res.json().catch(() => null);
+      const { res, body } = await submitQuoteRequest({ ...values, requestId });
+      if (res.status === 429) {
+        const wait = parseQuoteRetryAfter(res.headers.get('retry-after'));
+        retryAfterUntil.current = retryDeadline(wait);
+        setRetryAfterSeconds(wait);
+        setSubmitError(
+          'We are receiving too many requests right now. Your details are still here.',
+        );
+        return;
+      }
+      if (res.status === 403) {
+        setSubmitError(
+          'We could not send your request. Your details are still here. Please try again.',
+        );
+        return;
+      }
       if (res.status === 409) {
         retryRequest.current = null;
         setValue('requestId', '');
@@ -262,10 +288,8 @@ export default function QuoteForm() {
       setReceiptId(requestId);
     } catch {
       setSubmitError(
-        'We could not confirm receipt. Check your connection and try again. Your details are still here.',
+        'We could not confirm receipt. Your details are still here. Please try again.',
       );
-    } finally {
-      window.clearTimeout(timeout);
     }
   };
 
@@ -290,6 +314,7 @@ export default function QuoteForm() {
       await goNext();
       return;
     }
+    if (Date.now() < retryAfterUntil.current) return;
     submissionInFlight.current = true;
     try {
       if (!getValues('requestId')) setValue('requestId', createRequestId());
@@ -312,7 +337,7 @@ export default function QuoteForm() {
         <div className="mx-auto max-w-3xl">
           <div className="text-center">
             <h2 className="font-display text-3xl font-semibold leading-[1.02] tracking-[-0.03em] sm:text-4xl lg:text-5xl">
-              Get a real quote
+              Request a free quote
             </h2>
             <p className="mt-5 text-lg text-white/65">It takes one minute.</p>
           </div>
@@ -373,6 +398,17 @@ export default function QuoteForm() {
                   </div>
                 )}
 
+                {isCoolingDown && (
+                  <p
+                    role="timer"
+                    aria-live="off"
+                    className="mt-3 text-sm text-text-dim"
+                  >
+                    Please wait {retryAfterSeconds} seconds, then send again.
+                    You can review or edit your details while you wait.
+                  </p>
+                )}
+
                 <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row-reverse sm:items-center sm:justify-between">
                   {step < 2 ? (
                     <button
@@ -398,10 +434,18 @@ export default function QuoteForm() {
                     <button
                       key="submit-quote"
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || isCoolingDown}
                       className="group inline-flex h-14 items-center justify-center gap-3 rounded-full bg-orange pl-7 pr-3 text-base font-medium tracking-tight text-navy transition duration-200 ease-out-quart hover:bg-orange-dark hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange active:scale-[0.985] active:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                     >
-                      <span>{isSubmitting ? 'Sending…' : STEP_CTAS[step]}</span>
+                      <span>
+                        {isSubmitting
+                          ? 'Sending…'
+                          : isCoolingDown
+                            ? `Try again in ${retryAfterSeconds}s`
+                            : submitError
+                              ? 'Retry'
+                              : STEP_CTAS[step]}
+                      </span>
                       <span
                         aria-hidden="true"
                         className="flex h-10 w-10 items-center justify-center rounded-full bg-navy/10 transition-[transform,background-color] duration-200 ease-out-quart group-hover:translate-x-1 group-hover:scale-[1.06] group-hover:bg-white/15"
