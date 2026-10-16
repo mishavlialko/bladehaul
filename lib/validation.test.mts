@@ -279,3 +279,38 @@ test('rejects phones that are not valid 10-digit US numbers', () => {
       assert.ok(result.error.issues.some((issue) => issue.path[0] === 'phone'));
   }
 });
+
+test('landing page and UTM tags are optional and an unusable value is dropped, never a rejection', () => {
+  const tagged = quoteSchema.safeParse({
+    ...validQuote(),
+    landingPage: '/car-shipping-cost',
+    utm: { source: ' google ', medium: 'cpc', campaign: 'fall sale' },
+  });
+  assert.equal(tagged.success, true);
+  if (tagged.success) {
+    assert.equal(tagged.data.landingPage, '/car-shipping-cost');
+    assert.deepEqual(JSON.parse(JSON.stringify(tagged.data.utm)), {
+      source: 'google',
+      medium: 'cpc',
+      campaign: 'fall sale',
+    });
+  }
+  for (const junk of [
+    { landingPage: 'https://evil.example/', utm: 'google' },
+    { landingPage: '/x?email=a@b.com', utm: { source: 'x'.repeat(101) } },
+    { landingPage: 42, utm: { source: 7, medium: '' } },
+    { landingPage: `/${'a'.repeat(250)}`, utm: null },
+  ]) {
+    const result = quoteSchema.safeParse({ ...validQuote(), ...junk });
+    assert.equal(result.success, true, JSON.stringify(junk));
+    if (result.success) {
+      assert.equal(result.data.landingPage, undefined);
+      assert.equal(
+        Object.values(result.data.utm ?? {}).filter(Boolean).length,
+        0,
+      );
+    }
+  }
+  const untagged = quoteSchema.safeParse(validQuote());
+  assert.equal(untagged.success && untagged.data.utm, undefined);
+});

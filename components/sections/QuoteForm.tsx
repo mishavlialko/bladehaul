@@ -17,6 +17,7 @@ import QuoteStepContact from '@/components/sections/QuoteStepContact';
 import QuoteStepRoute from '@/components/sections/QuoteStepRoute';
 import QuoteStepVehicle from '@/components/sections/QuoteStepVehicle';
 import { cn } from '@/lib/cn';
+import { readQuoteAttribution, sessionStore } from '@/lib/quote-attribution';
 import { parseQuoteRetryAfter, submitQuoteRequest } from '@/lib/quote-submit';
 import {
   QUOTE_CONSENT_NOTICE,
@@ -246,7 +247,12 @@ export default function QuoteForm() {
     retryRequest.current = { fingerprint, requestId };
     setValue('requestId', requestId);
     try {
-      const { res, body } = await submitQuoteRequest({ ...values, requestId });
+      // Stable for the tab, so a retry with the same request ID matches.
+      const { res, body } = await submitQuoteRequest({
+        ...values,
+        requestId,
+        ...readQuoteAttribution(sessionStore()),
+      });
       if (res.status === 429) {
         const wait = parseQuoteRetryAfter(res.headers.get('retry-after'));
         retryAfterUntil.current = retryDeadline(wait);

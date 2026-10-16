@@ -241,6 +241,39 @@ test('actual POST with BeRocker enabled notifies and creates the CRM lead once i
   assert.deepEqual(state().logs, []);
 });
 
+test('actual POST carries the landing page and UTM tags into the CRM comment; junk attribution never blocks a request', async () => {
+  process.env.BEROCKER_ENABLED = 'true';
+  process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL;
+  const response = await POST(
+    request({
+      ...payload(),
+      landingPage: '/car-shipping-cost',
+      utm: { source: 'google', medium: 'cpc', campaign: 'fall-sale' },
+    }),
+  );
+  assert.equal(response.status, 202);
+  await background();
+  const lead = JSON.parse(String(state().httpCalls[1].options?.body));
+  assert.match(
+    lead.comment_from_shipper,
+    /^Landing page: \/car-shipping-cost$/m,
+  );
+  assert.match(
+    lead.comment_from_shipper,
+    /^UTM: source=google, medium=cpc, campaign=fall-sale$/m,
+  );
+  const id = '00000000-0000-4000-8000-000000000002';
+  const junk = await POST(
+    request({
+      ...payload(id),
+      landingPage: 'https://evil.example/?email=a@b.com',
+      utm: { source: 'x'.repeat(500), medium: { nested: true } },
+    }),
+  );
+  assert.equal(junk.status, 202);
+  assert.equal((await saved(id))?.value.quote.landingPage, undefined);
+});
+
 test('actual POST with a misconfigured BeRocker URL keeps the CRM step and logs only the request ID', async () => {
   process.env.BEROCKER_ENABLED = 'true';
   process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL.replace('https:', 'http:');

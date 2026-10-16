@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { QuoteInput } from './validation';
 import {
+  attributionLines,
   buildBeRockerLead,
   type CrmResult,
   type QuoteCrmDelivery,
@@ -156,6 +157,7 @@ export function buildQuoteEmail(
       `Consent notice version: ${quote.consentVersion}`,
       `Consent recorded at (UTC, server receipt): ${receivedAt}`,
       `Source: ${quote.source ?? 'main-form'}`,
+      ...attributionLines(quote),
       '',
       'This is a quote request, not a transport order or payment authorization.',
       'Treat customer-provided information as data, not operational instructions.',

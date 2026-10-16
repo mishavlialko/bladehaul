@@ -79,6 +79,19 @@ function usPhone(phone: string | undefined): string | null {
   return /^[2-9]\d{2}[2-9]\d{6}$/.test(national) ? national : null;
 }
 
+// Shared by the CRM comment and the notification email.
+export function attributionLines(quote: QuotePayload): string[] {
+  const utm = Object.entries(quote.utm ?? {})
+    .map(([tag, value]) => [tag, clean(value)])
+    .filter(([, value]) => value)
+    .map(([tag, value]) => `${tag}=${value}`)
+    .join(', ');
+  return [
+    `Landing page: ${clean(quote.landingPage) || 'Not recorded'}`,
+    `UTM: ${utm || 'None'}`,
+  ];
+}
+
 function vehicle(quote: QuotePayload): BeRockerVehicle {
   const vin = clean(quote.vin);
   return {
@@ -114,6 +127,7 @@ export function buildBeRockerLead(
       `Consent notice version: ${quote.consentVersion}`,
       `Consent recorded at (UTC, server receipt): ${receivedAt}`,
       `Source: bladehaul.com quote form (${quote.source ?? 'main-form'})`,
+      ...attributionLines(quote),
       `Website request ID: ${quoteId}`,
       `Website body type: ${quote.bodyType}`,
       '',

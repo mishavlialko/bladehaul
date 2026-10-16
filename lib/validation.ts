@@ -96,6 +96,34 @@ const vehicleIdentitySchema = z.object({
   vin: vinSchema,
 });
 
+// Attribution (lib/quote-attribution.ts) never blocks a request: an unusable
+// value is dropped, not refused.
+const utmTagSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(100)
+  .optional()
+  .catch(undefined);
+const attributionSchema = {
+  landingPage: z
+    .string()
+    .max(200)
+    .regex(/^\/[^\s?#]*$/)
+    .optional()
+    .catch(undefined),
+  utm: z
+    .object({
+      source: utmTagSchema,
+      medium: utmTagSchema,
+      campaign: utmTagSchema,
+      term: utmTagSchema,
+      content: utmTagSchema,
+    })
+    .optional()
+    .catch(undefined),
+};
+
 export const quoteSchema = z
   .object({
     requestId: z.uuidv4('Please send the request again'),
@@ -157,6 +185,7 @@ export const quoteSchema = z
       message: 'Refresh the page to see the current consent notice',
     }),
     source: z.enum(QUOTE_SOURCES),
+    ...attributionSchema,
     website: z.string().max(200).optional(),
   })
   .refine(

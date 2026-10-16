@@ -69,6 +69,10 @@ export default function PrivacyPage() {
                   A record of the contact consent you give by submitting the
                   form: the notice version and the time we received it
                 </li>
+                <li>
+                  The first page you opened on our site in that browser tab and
+                  any campaign (UTM) tags in the link that brought you there
+                </li>
               </ul>
               <p>
                 We also keep the messages you send us and details you provide
@@ -125,10 +129,10 @@ export default function PrivacyPage() {
                   which is hosted by Google Workspace. BeRocker, our customer
                   relationship management (CRM) service provider, receives and
                   stores your quote request, including your contact details,
-                  route, vehicle, preferred pickup date, notes, and consent
-                  record, so our team can manage and answer your request. These
-                  providers process the information needed to perform those
-                  services.
+                  route, vehicle, preferred pickup date, notes, consent record,
+                  landing page, and campaign tags, so our team can manage and
+                  answer your request. These providers process the information
+                  needed to perform those services.
                 </li>
                 <li>
                   <strong>Carriers for an accepted transport order.</strong> We
@@ -167,13 +171,16 @@ export default function PrivacyPage() {
               </p>
               <p>
                 The quote form uses browser session storage to carry details
-                between steps and help you finish a request. You can clear this
-                data through your browser settings. We also remember the last
-                illustrative shipment shown in the current tab so refreshing the
-                page can show a different example. When you enter a complete ZIP
-                code, the form asks Zippopotam.us for its city and state. That
-                provider receives the ZIP code and the technical information
-                sent by your browser, including its IP address.
+                between steps and help you finish a request. It also remembers
+                the first page you opened in the tab and any campaign (UTM) tags
+                in its link, so they can be attached to your quote request. You
+                can clear this data through your browser settings. We also
+                remember the last illustrative shipment shown in the current tab
+                so refreshing the page can show a different example. When you
+                enter a complete ZIP code, the form asks Zippopotam.us for its
+                city and state. That provider receives the ZIP code and the
+                technical information sent by your browser, including its IP
+                address.
               </p>
               <p>
                 We do not use advertising trackers or a site analytics service.

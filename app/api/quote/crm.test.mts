@@ -14,6 +14,7 @@ const { BEROCKER_VEHICLE_TYPES, buildBeRockerLead } = (await import(
   new URL('../../../lib/quote-crm.ts', import.meta.url).href
 )) as typeof import('../../../lib/quote-crm');
 const {
+  buildQuoteEmail,
   DELIVERY_LEASE_MS,
   enqueueQuote,
   processQuote,
@@ -145,6 +146,39 @@ test('maps the quote to a BeRocker lead with submission consent, version, timest
   assert.ok(comment.includes(`Website request ID: ${QUOTE_ID}`));
   assert.match(comment, /^Website body type: suv$/m);
   assert.ok(comment.endsWith('Lowered suspension.\nGate code 1234'));
+});
+
+test('landing page and UTM tags reach both the shipper comment and the notification email', () => {
+  const quote: QuotePayload = {
+    ...QUOTE,
+    landingPage: '/open-vs-enclosed-car-shipping',
+    utm: { source: 'google', medium: 'cpc', term: 'enclosed\ncar transport' },
+  };
+  const comment = buildBeRockerLead(
+    quote,
+    QUOTE_ID,
+    RECEIVED_AT,
+  )?.comment_from_shipper;
+  const email = buildQuoteEmail(
+    quote,
+    QUOTE_ID,
+    RECEIVED_AT,
+    EMAIL_SETTINGS.from,
+    EMAIL_SETTINGS.recipient,
+  ).text;
+  for (const text of [comment ?? '', email]) {
+    assert.match(text, /^Landing page: \/open-vs-enclosed-car-shipping$/m);
+    assert.match(
+      text,
+      /^UTM: source=google, medium=cpc, term=enclosed car transport$/m,
+    );
+  }
+  const untagged = buildBeRockerLead(QUOTE, QUOTE_ID, RECEIVED_AT);
+  assert.match(
+    untagged?.comment_from_shipper ?? '',
+    /^Landing page: Not recorded$/m,
+  );
+  assert.match(untagged?.comment_from_shipper ?? '', /^UTM: None$/m);
 });
 
 test('phone goes to BeRocker as the 10 digits its docs use; any saved US spelling works, anything else skips', () => {

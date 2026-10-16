@@ -1,4 +1,11 @@
 import { initBotId } from 'botid/client/core';
+import {
+  rememberQuoteAttribution,
+  sessionStore,
+} from '@/lib/quote-attribution';
+
+// Runs once per full page load, before the app hydrates.
+rememberQuoteAttribution(window.location, sessionStore());
 
 try {
   initBotId({
