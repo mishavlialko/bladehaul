@@ -214,7 +214,7 @@ test('actual POST returns the exact durable receipt before a single immutable no
 test('actual POST with BeRocker enabled notifies and creates the CRM lead once in the background', async () => {
   process.env.BEROCKER_ENABLED = 'true';
   process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL;
-  const body = { ...payload(), phone: '+1 (555) 123-4567' };
+  const body = { ...payload(), phone: '+1 (312) 555-0142' };
   const response = await POST(request(body));
   assert.equal(response.status, 202);
   assert.deepEqual(await response.json(), { success: true, quoteId: QUOTE_ID });
@@ -227,7 +227,8 @@ test('actual POST with BeRocker enabled notifies and creates the CRM lead once i
   );
   const lead = JSON.parse(String(state().httpCalls[1].options?.body));
   assert.equal(lead.secondary_id, QUOTE_ID);
-  assert.equal(lead.phone, '+15551234567');
+  assert.equal(lead.phone, '+13125550142');
+  assert.equal((await saved())?.value.quote.phone, '+13125550142');
   const record = (await saved())?.value;
   assert.equal(record?.delivery.state, 'accepted');
   assert.equal(record?.crm?.state, 'created');
@@ -242,7 +243,7 @@ test('actual POST with BeRocker enabled notifies and creates the CRM lead once i
 test('actual POST with a misconfigured BeRocker URL keeps the CRM step and logs only the request ID', async () => {
   process.env.BEROCKER_ENABLED = 'true';
   process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL.replace('https:', 'http:');
-  const body = { ...payload(), phone: '+1 (555) 123-4567' };
+  const body = { ...payload(), phone: '+1 (312) 555-0142' };
   assert.equal((await POST(request(body))).status, 202);
   await background();
   assert.deepEqual(
@@ -413,6 +414,22 @@ test('actual POST rejects an old checkbox-era tab before storage and asks for a 
   }
 });
 
+test('actual POST requires a valid US phone before storage and stores it as E.164', async () => {
+  for (const phone of ['', '555-0142', '+44 20 7946 0958', undefined]) {
+    const response = await POST(request({ ...payload(), phone }));
+    assert.equal(response.status, 400);
+    const body = await response.json();
+    assert.equal(body.error, 'Please check the highlighted details.');
+    assert.equal(typeof body.issues.fieldErrors.phone?.[0], 'string');
+    assert.equal(await saved(), null);
+  }
+  const response = await POST(
+    request({ ...payload(), phone: '(312) 555-0142' }),
+  );
+  assert.equal(response.status, 202);
+  assert.equal((await saved())?.value.quote.phone, '+13125550142');
+});
+
 test('actual POST applies the shared schema without additional name, email-domain or route heuristics', async () => {
   const unusual = {
     ...payload(),
@@ -424,7 +441,6 @@ test('actual POST applies the shared schema without additional name, email-domai
     vehicleMake: 'Qq',
     vehicleModel: '?',
     bodyType: 'other',
-    phone: '',
   };
   assert.equal(quoteSchema.safeParse(unusual).success, true);
   assert.equal((await POST(request(unusual))).status, 202);

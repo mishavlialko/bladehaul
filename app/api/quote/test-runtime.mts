@@ -47,7 +47,7 @@ export const QUOTE: QuotePayload = {
   firstName: 'Example',
   lastName: 'Customer',
   email: 'customer@example.com',
-  phone: '',
+  phone: '+13125550142',
   consentTcpa: true,
   consentVersion: '2026-10-16-submit-v1',
   source: 'main-form',

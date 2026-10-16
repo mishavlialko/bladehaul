@@ -446,7 +446,7 @@ test('health cannot turn green from a clean later batch while an earlier record 
 
 test('stores submission consent=true with the exact notice version, source and server receipt time', async () => {
   const store = new MemoryStore();
-  const quote = { ...QUOTE, phone: '+1 (555) 123-4567' };
+  const quote = QUOTE;
   await enqueueQuote(
     store,
     'development',

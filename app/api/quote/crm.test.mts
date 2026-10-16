@@ -35,7 +35,9 @@ const { BODY_TYPES } = (await import(
 
 const SECRET = 'synthetic-source-key';
 const LEAD_URL = `https://crm.example.test/api/v1/auto-logistics/client/webhooks/lead/${SECRET}/save`;
-const PHONE_QUOTE = { ...QUOTE, phone: '+1 (555) 123-4567' };
+// Saved quotes hold E.164; older ones held the form's display format.
+const PHONE_QUOTE = { ...QUOTE, phone: '+1 (312) 555-0142' };
+const LEGACY_NO_PHONE = { ...QUOTE, phone: '' };
 const RECEIVED_AT = new Date(START).toISOString();
 const path = quotePath('development', QUOTE_ID);
 const DOCUMENTED_TYPES = new Set([
@@ -112,7 +114,7 @@ test('maps the quote to a BeRocker lead with submission consent, version, timest
   assert.deepEqual(fields, {
     first_name: 'Example',
     last_name: 'Customer',
-    phone: '+15551234567',
+    phone: '+13125550142',
     email: 'customer@example.com',
     origin_postal_code: '90210',
     destination_postal_code: '10001',
@@ -359,11 +361,11 @@ test('email and CRM steps saving concurrently never erase each other', async () 
   }
 });
 
-test('a quote without a phone is recorded as skipped, never sent and not an alert', async () => {
-  const store = await enqueued(QUOTE);
+test('a legacy quote without a phone is recorded as skipped, never sent and not an alert', async () => {
+  const store = await enqueued(LEGACY_NO_PHONE);
   const { crm, calls } = berocker(created);
   const context = { store, namespace: 'development', now: () => START, crm };
-  assert.equal(buildBeRockerLead(QUOTE, QUOTE_ID, RECEIVED_AT), null);
+  assert.equal(buildBeRockerLead(LEGACY_NO_PHONE, QUOTE_ID, RECEIVED_AT), null);
   assert.equal(await processQuoteCrm(context, QUOTE_ID), 'skipped');
   const maintenance = await runQuoteMaintenance({
     ...context,

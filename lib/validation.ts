@@ -41,8 +41,17 @@ export const QUOTE_CONSENT_TEXT = `${QUOTE_CONSENT_NOTICE} See our Privacy Polic
 export const QUOTE_TIME_ZONE = 'America/Chicago';
 
 const zipRegex = /^\d{5}$/;
-const phoneRegex = /^\+1 \(\d{3}\) \d{3}-\d{4}$/;
 const isoDateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+// Accepts the form's "+1 (312) 555-0142", E.164 and common US spellings, and
+// returns E.164. NANP area codes and exchanges never start with 0 or 1.
+export function normalizeUSPhone(value: string): string | null {
+  if (!/^[\d\s().+-]+$/.test(value)) return null;
+  const digits = value.replace(/\D/g, '');
+  const national =
+    digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  return /^[2-9]\d{2}[2-9]\d{6}$/.test(national) ? `+1${national}` : null;
+}
 
 export function getQuoteDateBounds(now = new Date()) {
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -129,12 +138,18 @@ export const quoteSchema = z
       .trim()
       .max(254, 'Email address is too long')
       .email('That email looks off, check the spelling'),
+    // Required: BeRocker cannot create a lead without it. Client and server
+    // both submit/store E.164, so re-parsing a normalized value is a no-op.
     phone: z
       .string()
       .trim()
-      .regex(phoneRegex, 'Phone needs 10 digits')
-      .optional()
-      .or(z.literal('')),
+      .min(1, { message: 'Enter a phone number', abort: true })
+      .max(30, { message: 'Phone number is too long', abort: true })
+      .refine(
+        (value) => normalizeUSPhone(value) !== null,
+        'Enter a 10-digit US phone number',
+      )
+      .transform((value) => normalizeUSPhone(value) ?? value),
     consentTcpa: z.literal(true, {
       message: 'Refresh the page to see the current consent notice',
     }),

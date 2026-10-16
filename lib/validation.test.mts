@@ -4,6 +4,7 @@ import test from 'node:test';
 const {
   quoteSchema,
   getQuoteDateBounds,
+  normalizeUSPhone,
   QUOTE_CONSENT_TEXT,
   QUOTE_CONSENT_VERSION,
   QUOTE_SUBMIT_LABEL,
@@ -29,7 +30,7 @@ function validQuote() {
     firstName: 'Test',
     lastName: 'Request',
     email: 'quote-test@example.com',
-    phone: '',
+    phone: '+1 (312) 555-0142',
     consentTcpa: true,
     consentVersion: QUOTE_CONSENT_VERSION,
     source: 'main-form',
@@ -43,7 +44,7 @@ test('accepts a submitted request and keeps submission consent', () => {
   if (result.success) {
     assert.equal(result.data.consentTcpa, true);
     assert.equal(result.data.consentVersion, '2026-10-16-submit-v1');
-    assert.equal(result.data.phone, '');
+    assert.equal(result.data.phone, '+13125550142');
     assert.equal(result.data.vin, '');
   }
 });
@@ -185,7 +186,6 @@ test('preserves genuine source and requires a current consent version and UUIDv4
   const result = quoteSchema.safeParse({
     ...validQuote(),
     source: 'hero-mini',
-    phone: '+1 (555) 123-4567',
   });
   assert.equal(result.success, true);
   if (result.success) {
@@ -220,11 +220,62 @@ test('submitting is the consent: a missing or false consent flag is rejected', (
 test('rejects earlier checkbox and phone-follow-up consent instead of upgrading it', () => {
   for (const consentVersion of ['2026-09-29', '2026-10-03-sms-v1'])
     assert.equal(
-      quoteSchema.safeParse({
-        ...validQuote(),
-        consentVersion,
-        phone: '+1 (555) 123-4567',
-      }).success,
+      quoteSchema.safeParse({ ...validQuote(), consentVersion }).success,
       false,
     );
+});
+
+test('phone is required on the Contact step', () => {
+  assert.ok(STEP_FIELDS.contact.includes('phone'));
+  for (const phone of ['', '   ', undefined]) {
+    const result = quoteSchema.safeParse({ ...validQuote(), phone });
+    assert.equal(result.success, false);
+    if (!result.success)
+      assert.ok(result.error.issues.some((issue) => issue.path[0] === 'phone'));
+  }
+});
+
+test('US phone spellings normalize to E.164 and re-parse unchanged', () => {
+  for (const phone of [
+    '+1 (312) 555-0142',
+    '(312) 555-0142',
+    '312-555-0142',
+    '312.555.0142',
+    '3125550142',
+    '1 312 555 0142',
+    '+13125550142',
+    '  +1 312 555 0142  ',
+  ]) {
+    assert.equal(normalizeUSPhone(phone.trim()), '+13125550142', phone);
+    const result = quoteSchema.safeParse({ ...validQuote(), phone });
+    assert.equal(result.success, true, phone);
+    if (result.success) {
+      assert.equal(result.data.phone, '+13125550142');
+      const again = quoteSchema.safeParse({ ...validQuote(), ...result.data });
+      assert.equal(again.success && again.data.phone, '+13125550142');
+    }
+  }
+});
+
+test('rejects phones that are not valid 10-digit US numbers', () => {
+  for (const phone of [
+    '123',
+    '555-0142',
+    '+44 20 7946 0958',
+    '(012) 555-0142',
+    '(112) 555-0142',
+    '(312) 055-0142',
+    '(312) 155-0142',
+    '2 312 555 0142',
+    '312 555 01423',
+    '312555014x',
+    '+1 (312) 555-0142 ext 7',
+    '1'.repeat(31),
+  ]) {
+    assert.equal(normalizeUSPhone(phone), null, phone);
+    const result = quoteSchema.safeParse({ ...validQuote(), phone });
+    assert.equal(result.success, false, phone);
+    if (!result.success)
+      assert.ok(result.error.issues.some((issue) => issue.path[0] === 'phone'));
+  }
 });

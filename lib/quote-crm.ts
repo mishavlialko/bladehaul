@@ -67,7 +67,7 @@ function clean(value: string | undefined, multiline = false): string {
   return (multiline ? cleaned : cleaned.replace(/[\r\n]+/g, ' ')).trim();
 }
 
-// The form validates "+1 (555) 123-4567"; BeRocker receives E.164.
+// The schema already stores E.164; this guards older saved quotes too.
 function usPhone(phone: string | undefined): string | null {
   const digits = phone?.replace(/\D/g, '') ?? '';
   return /^1\d{10}$/.test(digits) ? `+${digits}` : null;
@@ -78,7 +78,8 @@ export function buildBeRockerLead(
   quoteId: string,
   receivedAt: string,
 ): BeRockerLead | null {
-  // BeRocker requires a phone; a quote without one skips the CRM step.
+  // BeRocker requires a phone. The form requires one, but a quote saved before
+  // that change may lack it and then skips the CRM step.
   const phone = usPhone(quote.phone);
   if (!phone) return null;
   const vin = clean(quote.vin);

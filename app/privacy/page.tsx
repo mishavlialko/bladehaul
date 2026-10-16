@@ -58,13 +58,13 @@ export default function PrivacyPage() {
             <Section title="Information you provide">
               <p>A quote request includes:</p>
               <ul className="mt-3 list-disc space-y-2 pl-6">
-                <li>Your name and email address</li>
+                <li>Your name, email address, and phone number</li>
                 <li>Pickup and delivery ZIP codes and preferred pickup date</li>
                 <li>
                   Vehicle year, make, model, body type, and running condition
                 </li>
                 <li>Your open or enclosed trailer preference</li>
-                <li>An optional phone number, VIN, and additional details</li>
+                <li>An optional VIN and additional details</li>
                 <li>
                   A record of the contact consent you give by submitting the
                   form: the notice version and the time we received it

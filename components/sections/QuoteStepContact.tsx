@@ -98,8 +98,8 @@ export default function QuoteStepContact() {
 
       <Field
         id={phoneId}
-        label="Phone (optional)"
-        helper="Add your number if you would like a call or text about this request."
+        label="Phone"
+        helper="10-digit US number."
         error={errors.phone?.message}
       >
         <Controller
@@ -111,7 +111,7 @@ export default function QuoteStepContact() {
               type="tel"
               inputMode="tel"
               autoComplete="tel"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+1 (555) 555-0123"
               aria-invalid={!!errors.phone}
               aria-describedby={`${phoneId}-message`}
               name={field.name}
