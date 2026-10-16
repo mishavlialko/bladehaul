@@ -2,7 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight, Check } from 'lucide-react';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import Link from 'next/link';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { FormProvider, useForm, type FieldErrors } from 'react-hook-form';
 import Container from '@/components/shared/Container';
 import {
@@ -15,9 +16,12 @@ import QuoteProgress, {
 import QuoteStepContact from '@/components/sections/QuoteStepContact';
 import QuoteStepRoute from '@/components/sections/QuoteStepRoute';
 import QuoteStepVehicle from '@/components/sections/QuoteStepVehicle';
+import { cn } from '@/lib/cn';
 import { parseQuoteRetryAfter, submitQuoteRequest } from '@/lib/quote-submit';
 import {
+  QUOTE_CONSENT_NOTICE,
   QUOTE_CONSENT_VERSION,
+  QUOTE_SUBMIT_LABEL,
   quoteSchema,
   STEP_FIELDS,
   type QuoteInput,
@@ -35,11 +39,15 @@ const STEP_KEYS: ReadonlyArray<keyof typeof STEP_FIELDS> = [
   'contact',
 ];
 
+// The final label must match the consent notice ("By clicking Get Quote").
 const STEP_CTAS: readonly string[] = [
   'Vehicle details',
   'Contact details',
-  'Get my quote',
+  QUOTE_SUBMIT_LABEL,
 ];
+
+const consentLinkClass =
+  'font-medium underline underline-offset-2 hover:text-orange-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange';
 
 function createRequestId() {
   if (typeof crypto.randomUUID === 'function') return crypto.randomUUID();
@@ -64,6 +72,7 @@ export default function QuoteForm() {
   const retryAfterUntil = useRef(0);
   const isCoolingDown = retryAfterSeconds > 0;
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const consentNoticeId = useId();
   const pendingFocus = useRef<keyof QuoteInput | null>(null);
   const submissionInFlight = useRef(false);
   const retryRequest = useRef<{
@@ -99,7 +108,8 @@ export default function QuoteForm() {
       lastName: '',
       email: '',
       phone: '',
-      consentTcpa: false,
+      // Submitting next to the consent notice is the agreement; no checkbox.
+      consentTcpa: true,
       consentVersion: QUOTE_CONSENT_VERSION,
       source: 'main-form',
       website: '',
@@ -409,7 +419,41 @@ export default function QuoteForm() {
                   </p>
                 )}
 
-                <div className="mt-8 flex flex-col items-stretch gap-3 sm:flex-row-reverse sm:items-center sm:justify-between">
+                {step === 2 && (
+                  <p
+                    id={consentNoticeId}
+                    className="mt-6 text-[15px] leading-relaxed text-text"
+                  >
+                    {QUOTE_CONSENT_NOTICE} See our{' '}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={consentLinkClass}
+                    >
+                      Privacy Policy
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </Link>{' '}
+                    and{' '}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={consentLinkClass}
+                    >
+                      Terms
+                      <span className="sr-only"> (opens in a new tab)</span>
+                    </Link>
+                    .
+                  </p>
+                )}
+
+                <div
+                  className={cn(
+                    'flex flex-col items-stretch gap-3 sm:flex-row-reverse sm:items-center sm:justify-between',
+                    step === 2 ? 'mt-5' : 'mt-8',
+                  )}
+                >
                   {step < 2 ? (
                     <button
                       key="advance-step"
@@ -435,6 +479,7 @@ export default function QuoteForm() {
                       key="submit-quote"
                       type="submit"
                       disabled={isSubmitting || isCoolingDown}
+                      aria-describedby={consentNoticeId}
                       className="group inline-flex h-14 items-center justify-center gap-3 rounded-full bg-orange pl-7 pr-3 text-base font-medium tracking-tight text-navy transition duration-200 ease-out-quart hover:bg-orange-dark hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange active:scale-[0.985] active:text-white disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100"
                     >
                       <span>
@@ -442,9 +487,7 @@ export default function QuoteForm() {
                           ? 'Sending…'
                           : isCoolingDown
                             ? `Try again in ${retryAfterSeconds}s`
-                            : submitError
-                              ? 'Retry'
-                              : STEP_CTAS[step]}
+                            : STEP_CTAS[step]}
                       </span>
                       <span
                         aria-hidden="true"

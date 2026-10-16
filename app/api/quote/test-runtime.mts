@@ -48,8 +48,8 @@ export const QUOTE: QuotePayload = {
   lastName: 'Customer',
   email: 'customer@example.com',
   phone: '',
-  consentTcpa: false,
-  consentVersion: '2026-10-03-sms-v1',
+  consentTcpa: true,
+  consentVersion: '2026-10-16-submit-v1',
   source: 'main-form',
 };
 

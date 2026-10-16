@@ -78,7 +78,7 @@ export function buildBeRockerLead(
   quoteId: string,
   receivedAt: string,
 ): BeRockerLead | null {
-  // BeRocker requires a phone, which the form only demands with SMS consent.
+  // BeRocker requires a phone; a quote without one skips the CRM step.
   const phone = usPhone(quote.phone);
   if (!phone) return null;
   const vin = clean(quote.vin);
@@ -92,7 +92,7 @@ export function buildBeRockerLead(
     ship_date: quote.readyDate,
     transport_type: quote.trailerType,
     comment_from_shipper: [
-      `Automated quote SMS consent (including marketing follow-ups): ${quote.consentTcpa === true ? 'Yes' : 'No'}`,
+      `Contact consent by submitting the quote form (phone, email, SMS, including automated messages): ${quote.consentTcpa === true ? 'Yes' : 'No'}`,
       `Consent notice version: ${quote.consentVersion}`,
       `Consent recorded at (UTC, server receipt): ${receivedAt}`,
       `Source: bladehaul.com quote form (${quote.source ?? 'main-form'})`,

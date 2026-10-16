@@ -1,10 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-const { quoteSchema, getQuoteDateBounds, QUOTE_CONSENT_VERSION, STEP_FIELDS } =
-  (await import(
-    new URL('./validation.ts', import.meta.url).href
-  )) as typeof import('./validation');
+const {
+  quoteSchema,
+  getQuoteDateBounds,
+  QUOTE_CONSENT_TEXT,
+  QUOTE_CONSENT_VERSION,
+  QUOTE_SUBMIT_LABEL,
+  STEP_FIELDS,
+} = (await import(
+  new URL('./validation.ts', import.meta.url).href
+)) as typeof import('./validation');
 
 function validQuote() {
   return {
@@ -24,21 +30,34 @@ function validQuote() {
     lastName: 'Request',
     email: 'quote-test@example.com',
     phone: '',
-    consentTcpa: false,
+    consentTcpa: true,
     consentVersion: QUOTE_CONSENT_VERSION,
     source: 'main-form',
     website: '',
   };
 }
 
-test('accepts an email-only request without inventing phone consent', () => {
+test('accepts a submitted request and keeps submission consent', () => {
   const result = quoteSchema.safeParse(validQuote());
   assert.equal(result.success, true);
   if (result.success) {
-    assert.equal(result.data.consentTcpa, false);
+    assert.equal(result.data.consentTcpa, true);
+    assert.equal(result.data.consentVersion, '2026-10-16-submit-v1');
     assert.equal(result.data.phone, '');
     assert.equal(result.data.vin, '');
   }
+});
+
+test('the consent notice keeps the approved wording and names the submit button', () => {
+  assert.equal(QUOTE_SUBMIT_LABEL, 'Get Quote');
+  assert.equal(
+    QUOTE_CONSENT_TEXT,
+    'By clicking Get Quote, you agree that BladeHaul Auto Transport may contact you about your request by phone, email, and text message (SMS), including automated messages, at the number provided. Consent is not a condition of purchase. Msg & data rates may apply. Reply STOP to opt out. See our Privacy Policy and Terms.',
+  );
+  assert.equal(
+    (STEP_FIELDS.contact as readonly string[]).includes('consentTcpa'),
+    false,
+  );
 });
 
 test('uses Central calendar dates at midnight and across daylight saving changes', () => {
@@ -167,7 +186,6 @@ test('preserves genuine source and requires a current consent version and UUIDv4
     ...validQuote(),
     source: 'hero-mini',
     phone: '+1 (555) 123-4567',
-    consentTcpa: true,
   });
   assert.equal(result.success, true);
   if (result.success) {
@@ -188,33 +206,25 @@ test('preserves genuine source and requires a current consent version and UUIDv4
   );
 });
 
-test('SMS consent requires a valid phone; providing a phone alone never opts in', () => {
-  for (const phone of ['', undefined, '123']) {
-    const result = quoteSchema.safeParse({
-      ...validQuote(),
-      phone,
-      consentTcpa: true,
-    });
+test('submitting is the consent: a missing or false consent flag is rejected', () => {
+  for (const consentTcpa of [false, undefined, 'true', 1]) {
+    const result = quoteSchema.safeParse({ ...validQuote(), consentTcpa });
     assert.equal(result.success, false);
     if (!result.success)
-      assert.ok(result.error.issues.some((issue) => issue.path[0] === 'phone'));
+      assert.ok(
+        result.error.issues.some((issue) => issue.path[0] === 'consentTcpa'),
+      );
   }
-  const result = quoteSchema.safeParse({
-    ...validQuote(),
-    phone: '+1 (555) 123-4567',
-  });
-  assert.equal(result.success, true);
-  if (result.success) assert.equal(result.data.consentTcpa, false);
 });
 
-test('rejects old phone-follow-up consent instead of upgrading it to marketing SMS', () => {
-  assert.equal(
-    quoteSchema.safeParse({
-      ...validQuote(),
-      consentVersion: '2026-09-29',
-      consentTcpa: true,
-      phone: '+1 (555) 123-4567',
-    }).success,
-    false,
-  );
+test('rejects earlier checkbox and phone-follow-up consent instead of upgrading it', () => {
+  for (const consentVersion of ['2026-09-29', '2026-10-03-sms-v1'])
+    assert.equal(
+      quoteSchema.safeParse({
+        ...validQuote(),
+        consentVersion,
+        phone: '+1 (555) 123-4567',
+      }).success,
+      false,
+    );
 });

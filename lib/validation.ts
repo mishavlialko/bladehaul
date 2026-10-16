@@ -30,9 +30,14 @@ export const BODY_TYPE_LABELS: Record<(typeof BODY_TYPES)[number], string> = {
   hatchback: 'Hatchback',
   other: 'Other',
 };
-// This version covers optional automated quote-related SMS, including marketing.
-// Earlier phone-follow-up consent must never be treated as this SMS consent.
-export const QUOTE_CONSENT_VERSION = '2026-10-03-sms-v1';
+// Submitting the form is the consent: the notice below sits next to the submit
+// button, and the version identifies its exact wording in every saved request.
+// Earlier SMS-checkbox or phone-follow-up consent is never upgraded to this one.
+export const QUOTE_CONSENT_VERSION = '2026-10-16-submit-v1';
+export const QUOTE_SUBMIT_LABEL = 'Get Quote';
+export const QUOTE_CONSENT_NOTICE = `By clicking ${QUOTE_SUBMIT_LABEL}, you agree that BladeHaul Auto Transport may contact you about your request by phone, email, and text message (SMS), including automated messages, at the number provided. Consent is not a condition of purchase. Msg & data rates may apply. Reply STOP to opt out.`;
+// The form renders the last sentence with links to /privacy and /terms.
+export const QUOTE_CONSENT_TEXT = `${QUOTE_CONSENT_NOTICE} See our Privacy Policy and Terms.`;
 export const QUOTE_TIME_ZONE = 'America/Chicago';
 
 const zipRegex = /^\d{5}$/;
@@ -130,17 +135,14 @@ export const quoteSchema = z
       .regex(phoneRegex, 'Phone needs 10 digits')
       .optional()
       .or(z.literal('')),
-    consentTcpa: z.boolean(),
+    consentTcpa: z.literal(true, {
+      message: 'Refresh the page to see the current consent notice',
+    }),
     consentVersion: z.literal(QUOTE_CONSENT_VERSION, {
-      message: 'Refresh the page to see the current contact choices',
+      message: 'Refresh the page to see the current consent notice',
     }),
     source: z.enum(QUOTE_SOURCES),
     website: z.string().max(200).optional(),
-  })
-  .refine(({ consentTcpa, phone }) => !consentTcpa || !!phone, {
-    path: ['phone'],
-    message:
-      'Enter a phone number to receive text messages, or uncheck SMS consent',
   })
   .refine(
     ({ vehicleYear, vin }) => {
@@ -172,12 +174,5 @@ export const STEP_FIELDS = {
     'vin',
     'additionalDetails',
   ],
-  contact: [
-    'readyDate',
-    'firstName',
-    'lastName',
-    'email',
-    'phone',
-    'consentTcpa',
-  ],
+  contact: ['readyDate', 'firstName', 'lastName', 'email', 'phone'],
 } as const satisfies Record<string, readonly (keyof QuoteInput)[]>;

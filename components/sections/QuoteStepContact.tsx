@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useId } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { Field, inputClass } from '@/components/sections/QuoteField';
@@ -19,7 +18,6 @@ export default function QuoteStepContact() {
   const lastId = useId();
   const emailId = useId();
   const phoneId = useId();
-  const consentId = useId();
 
   const dateBounds = getQuoteDateBounds();
 
@@ -101,7 +99,7 @@ export default function QuoteStepContact() {
       <Field
         id={phoneId}
         label="Phone (optional)"
-        helper="For optional text messages, add your number and select the SMS consent box below."
+        helper="Add your number if you would like a call or text about this request."
         error={errors.phone?.message}
       >
         <Controller
@@ -127,78 +125,9 @@ export default function QuoteStepContact() {
         />
       </Field>
 
-      <div>
-        <label
-          htmlFor={consentId}
-          className="flex min-h-11 cursor-pointer items-start gap-3 py-2 text-sm leading-relaxed text-text-dim"
-        >
-          <input
-            id={consentId}
-            type="checkbox"
-            {...register('consentTcpa')}
-            aria-describedby={`${consentId}-helper`}
-            className="mt-1 h-5 w-5 shrink-0 accent-orange focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
-          />
-          <span>
-            I agree to receive automated and personalized text messages from
-            BladeHaul Auto Transport LLC about my quote request, including
-            marketing follow-ups. Message frequency varies. Message and data
-            rates may apply. Reply STOP to opt out or HELP for assistance.
-            Consent is not required to request a quote or purchase services. See
-            our{' '}
-            <Link
-              href="/terms#sms-terms"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
-            >
-              SMS Terms<span className="sr-only"> (opens in a new tab)</span>
-            </Link>{' '}
-            and{' '}
-            <Link
-              href="/privacy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
-            >
-              Privacy Policy
-              <span className="sr-only"> (opens in a new tab)</span>
-            </Link>
-            .
-          </span>
-        </label>
-        <p
-          id={`${consentId}-helper`}
-          className="mt-1 text-sm leading-relaxed text-text-faint"
-        >
-          You can get your quote by email without selecting this optional SMS
-          consent box.
-        </p>
-      </div>
-
       <p className="text-sm leading-relaxed text-text-faint">
         We use your details to answer this request. This free quote request does
-        not book a shipment or authorize a payment. See our{' '}
-        <Link
-          href="/privacy"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-text-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
-        >
-          Privacy Policy
-          <span className="sr-only"> (opens in a new tab)</span>
-        </Link>{' '}
-        and{' '}
-        <Link
-          href="/terms"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2 hover:text-text-dim focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange"
-        >
-          Terms
-          <span className="sr-only"> (opens in a new tab)</span>
-        </Link>
-        .
+        not book a shipment or authorize a payment.
       </p>
     </div>
   );

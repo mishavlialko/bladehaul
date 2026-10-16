@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   },
 };
 
-const UPDATED_DATE = 'October 3, 2026';
+const UPDATED_DATE = 'October 16, 2026';
 const linkClass =
   'font-medium text-text underline underline-offset-4 hover:text-orange focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-orange';
 
@@ -65,6 +65,10 @@ export default function PrivacyPage() {
                 </li>
                 <li>Your open or enclosed trailer preference</li>
                 <li>An optional phone number, VIN, and additional details</li>
+                <li>
+                  A record of the contact consent you give by submitting the
+                  form: the notice version and the time we received it
+                </li>
               </ul>
               <p>
                 We also keep the messages you send us and details you provide
@@ -96,17 +100,19 @@ export default function PrivacyPage() {
               <p>
                 We also use information to prevent duplicate requests and abuse,
                 resolve problems, and meet applicable recordkeeping
-                requirements. Providing a phone number and choosing SMS
-                follow-up on our website are optional. Automated text messages
-                about your quote, including marketing follow-ups, require your
-                prior consent to receive those messages from BladeHaul Auto
-                Transport LLC. Our website collects this consent through an
-                optional SMS checkbox. We may also accept consent collected on
-                our behalf by another quote-request service, provided we can
-                verify that it covers BladeHaul and the messages we send.
-                Receiving your contact information alone does not enroll you in
-                our SMS program. Our website quote form does not enroll you in
-                automated calls.
+                requirements. The notice next to the Get Quote button on our
+                website explains that by clicking Get Quote, you agree that
+                BladeHaul Auto Transport LLC may contact you about your request
+                by phone, email, and text message (SMS), including automated
+                messages, at the number provided. We record this consent with
+                your request, including the notice version and the time we
+                received it. Consent is not a condition of purchase: you can
+                also request a quote by emailing info@bladehaul.com, and you can
+                reply STOP to any text to opt out. We may also accept consent
+                collected on our behalf by another quote-request service,
+                provided we can verify that it covers BladeHaul and the messages
+                we send. Receiving your contact information alone does not
+                enroll you in our SMS program.
               </p>
             </Section>
 

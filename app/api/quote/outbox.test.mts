@@ -83,7 +83,10 @@ test('payload hashes are insensitive to JSON property order and sensitive to act
       Object.fromEntries(Object.entries(QUOTE).reverse()) as typeof QUOTE,
     ),
   );
-  assert.notEqual(hashQuote(QUOTE), hashQuote({ ...QUOTE, consentTcpa: true }));
+  assert.notEqual(
+    hashQuote(QUOTE),
+    hashQuote({ ...QUOTE, consentTcpa: false } as unknown as typeof QUOTE),
+  );
 });
 
 test('message is readable plain text, has Reply-To and includes actual consent/body/details', () => {
@@ -98,7 +101,7 @@ test('message is readable plain text, has Reply-To and includes actual consent/b
   assert.match(email.text, /Body type: sedan/);
   assert.match(
     email.text,
-    /Automated quote SMS consent \(including marketing follow-ups\): No/,
+    /Contact consent by submitting the quote form \(phone, email, SMS, including automated messages\): Yes/,
   );
   assert.match(email.text, /<script>example<\/script>/);
   assert.equal('html' in email, false);
@@ -441,32 +444,29 @@ test('health cannot turn green from a clean later batch while an earlier record 
   );
 });
 
-test('stores the exact SMS consent version, flag, source and server receipt time without inferring consent', async () => {
-  for (const consentTcpa of [false, true]) {
-    const store = new MemoryStore();
-    const quote = { ...QUOTE, consentTcpa, phone: '+1 (555) 123-4567' };
-    await enqueueQuote(
-      store,
-      'development',
-      QUOTE_ID,
-      quote,
-      EMAIL_SETTINGS,
-      START,
-    );
-    const record = await saved(store);
-    assert.equal(record.quote.consentTcpa, consentTcpa);
-    assert.equal(record.quote.consentVersion, '2026-10-03-sms-v1');
-    assert.equal(record.quote.source, quote.source);
-    assert.equal(record.receivedAt, new Date(START).toISOString());
-    assert.ok(
-      record.email.text.includes(
-        `Automated quote SMS consent (including marketing follow-ups): ${consentTcpa ? 'Yes' : 'No'}`,
-      ),
-    );
-    assert.ok(
-      record.email.text.includes('Consent notice version: 2026-10-03-sms-v1'),
-    );
-  }
+test('stores submission consent=true with the exact notice version, source and server receipt time', async () => {
+  const store = new MemoryStore();
+  const quote = { ...QUOTE, phone: '+1 (555) 123-4567' };
+  await enqueueQuote(
+    store,
+    'development',
+    QUOTE_ID,
+    quote,
+    EMAIL_SETTINGS,
+    START,
+  );
+  const record = await saved(store);
+  const receivedAt = new Date(START).toISOString();
+  assert.equal(record.quote.consentTcpa, true);
+  assert.equal(record.quote.consentVersion, '2026-10-16-submit-v1');
+  assert.equal(record.quote.source, quote.source);
+  assert.equal(record.receivedAt, receivedAt);
+  for (const line of [
+    'Contact consent by submitting the quote form (phone, email, SMS, including automated messages): Yes',
+    'Consent notice version: 2026-10-16-submit-v1',
+    `Consent recorded at (UTC, server receipt): ${receivedAt}`,
+  ])
+    assert.ok(record.email.text.includes(line), line);
 });
 
 test('legacy records retry their original email without upgrading old phone consent', async () => {

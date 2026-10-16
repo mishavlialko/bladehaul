@@ -214,7 +214,7 @@ test('actual POST returns the exact durable receipt before a single immutable no
 test('actual POST with BeRocker enabled notifies and creates the CRM lead once in the background', async () => {
   process.env.BEROCKER_ENABLED = 'true';
   process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL;
-  const body = { ...payload(), phone: '+1 (555) 123-4567', consentTcpa: true };
+  const body = { ...payload(), phone: '+1 (555) 123-4567' };
   const response = await POST(request(body));
   assert.equal(response.status, 202);
   assert.deepEqual(await response.json(), { success: true, quoteId: QUOTE_ID });
@@ -397,6 +397,22 @@ test('actual POST accepts 100 new daily requests, limits the 101st, and recovers
   );
 });
 
+test('actual POST rejects an old checkbox-era tab before storage and asks for a refresh', async () => {
+  for (const stale of [
+    { consentTcpa: false, consentVersion: '2026-10-03-sms-v1' },
+    { consentTcpa: true, consentVersion: '2026-10-03-sms-v1' },
+    { consentTcpa: false },
+  ]) {
+    const response = await POST(request({ ...payload(), ...stale }));
+    assert.equal(response.status, 400);
+    assert.equal(
+      (await response.json()).error,
+      'Refresh the page to see the current consent notice before sending your request.',
+    );
+    assert.equal(await saved(), null);
+  }
+});
+
 test('actual POST applies the shared schema without additional name, email-domain or route heuristics', async () => {
   const unusual = {
     ...payload(),
@@ -409,7 +425,6 @@ test('actual POST applies the shared schema without additional name, email-domai
     vehicleModel: '?',
     bodyType: 'other',
     phone: '',
-    consentTcpa: false,
   };
   assert.equal(quoteSchema.safeParse(unusual).success, true);
   assert.equal((await POST(request(unusual))).status, 202);

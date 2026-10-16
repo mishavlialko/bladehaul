@@ -93,7 +93,7 @@ async function saved(store: InstanceType<typeof MemoryStore>) {
   return record.value;
 }
 
-test('maps the quote to a BeRocker lead with SMS consent, timestamp and notes in the shipper comment', () => {
+test('maps the quote to a BeRocker lead with submission consent, version, timestamp and notes in the shipper comment', () => {
   const lead = buildBeRockerLead(
     {
       ...PHONE_QUOTE,
@@ -132,10 +132,14 @@ test('maps the quote to a BeRocker lead with SMS consent, timestamp and notes in
   });
   assert.match(
     comment,
-    /^Automated quote SMS consent \(including marketing follow-ups\): Yes$/m,
+    /^Contact consent by submitting the quote form \(phone, email, SMS, including automated messages\): Yes$/m,
   );
-  assert.match(comment, /^Consent notice version: 2026-10-03-sms-v1$/m);
-  assert.ok(comment.includes(`(UTC, server receipt): ${RECEIVED_AT}`));
+  assert.match(comment, /^Consent notice version: 2026-10-16-submit-v1$/m);
+  assert.ok(
+    comment.includes(
+      `Consent recorded at (UTC, server receipt): ${RECEIVED_AT}`,
+    ),
+  );
   assert.ok(comment.includes(`Website request ID: ${QUOTE_ID}`));
   assert.ok(comment.endsWith('Lowered suspension.\nGate code 1234'));
 });
@@ -151,7 +155,7 @@ test('every website body type maps to a documented BeRocker vehicle type; no VIN
   assert.equal(lead.vehicles[0].vehicle_type, 'sedan');
   assert.equal(lead.vehicles[0].vehicle_inop, false);
   assert.equal('vin' in lead.vehicles[0], false);
-  assert.match(lead.comment_from_shipper, /follow-ups\): No$/m);
+  assert.match(lead.comment_from_shipper, /automated messages\): Yes$/m);
   assert.match(lead.comment_from_shipper, /Customer notes:\nNone$/);
 });
 
