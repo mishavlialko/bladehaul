@@ -114,7 +114,7 @@ test('maps the quote to a BeRocker lead with submission consent, version, timest
   assert.deepEqual(fields, {
     first_name: 'Example',
     last_name: 'Customer',
-    phone: '+13125550142',
+    phone: '3125550142',
     email: 'customer@example.com',
     origin_postal_code: '90210',
     destination_postal_code: '10001',
@@ -143,18 +143,60 @@ test('maps the quote to a BeRocker lead with submission consent, version, timest
     ),
   );
   assert.ok(comment.includes(`Website request ID: ${QUOTE_ID}`));
+  assert.match(comment, /^Website body type: suv$/m);
   assert.ok(comment.endsWith('Lowered suspension.\nGate code 1234'));
+});
+
+test('phone goes to BeRocker as the 10 digits its docs use; any saved US spelling works, anything else skips', () => {
+  for (const phone of [
+    '+13125550142',
+    '+1 (312) 555-0142',
+    '312-555-0142',
+    '1 312 555 0142',
+  ])
+    assert.equal(
+      buildBeRockerLead({ ...QUOTE, phone }, QUOTE_ID, RECEIVED_AT)?.phone,
+      '3125550142',
+    );
+  for (const phone of ['', '555-0142', '+44 20 7946 0958', '+11125550142'])
+    assert.equal(
+      buildBeRockerLead({ ...QUOTE, phone }, QUOTE_ID, RECEIVED_AT),
+      null,
+    );
+});
+
+test('names and vehicle text are single-line and trimmed; email is lowercased for CRM matching', () => {
+  const lead = buildBeRockerLead(
+    {
+      ...QUOTE,
+      firstName: ' Mary  Ann\t',
+      lastName: "O'Neil\n",
+      email: 'Mary.ONeil@Example.COM',
+      vehicleMake: '  Mercedes-Benz ',
+      vehicleModel: 'GLE\n350',
+    },
+    QUOTE_ID,
+    RECEIVED_AT,
+  );
+  assert.ok(lead);
+  assert.equal(lead.first_name, 'Mary Ann');
+  assert.equal(lead.last_name, "O'Neil");
+  assert.equal(lead.email, 'mary.oneil@example.com');
+  assert.equal(lead.vehicles[0].vehicle_make, 'Mercedes-Benz');
+  assert.equal(lead.vehicles[0].vehicle_model, 'GLE 350');
 });
 
 test('every website body type maps to a documented BeRocker vehicle type; no VIN and runs are explicit', () => {
   for (const bodyType of BODY_TYPES)
     assert.ok(DOCUMENTED_TYPES.has(BEROCKER_VEHICLE_TYPES[bodyType]));
+  // BeRocker's own example sends a Camry (a sedan) as "Car".
+  assert.equal(BEROCKER_VEHICLE_TYPES.sedan, 'Car');
   assert.equal(BEROCKER_VEHICLE_TYPES.pickup, 'Pickup');
   assert.equal(BEROCKER_VEHICLE_TYPES.wagon, 'Car');
   assert.equal(BEROCKER_VEHICLE_TYPES.other, 'Other');
   const lead = buildBeRockerLead(PHONE_QUOTE, QUOTE_ID, RECEIVED_AT);
   assert.ok(lead);
-  assert.equal(lead.vehicles[0].vehicle_type, 'sedan');
+  assert.equal(lead.vehicles[0].vehicle_type, 'Car');
   assert.equal(lead.vehicles[0].vehicle_inop, false);
   assert.equal('vin' in lead.vehicles[0], false);
   assert.match(lead.comment_from_shipper, /automated messages\): Yes$/m);

@@ -227,7 +227,8 @@ test('actual POST with BeRocker enabled notifies and creates the CRM lead once i
   );
   const lead = JSON.parse(String(state().httpCalls[1].options?.body));
   assert.equal(lead.secondary_id, QUOTE_ID);
-  assert.equal(lead.phone, '+13125550142');
+  // The record keeps E.164; BeRocker gets the 10 digits its docs use.
+  assert.equal(lead.phone, '3125550142');
   assert.equal((await saved())?.value.quote.phone, '+13125550142');
   const record = (await saved())?.value;
   assert.equal(record?.delivery.state, 'accepted');

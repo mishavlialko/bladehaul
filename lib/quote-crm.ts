@@ -1,9 +1,11 @@
 import type { QuotePayload } from '@/lib/quote-outbox';
 
-// BeRocker Lead source API vehicle types. Wagons and hatchbacks have no exact
-// counterpart, so they use the generic passenger "Car" type.
+// BeRocker Lead source API vehicle types. BeRocker prices passenger cars as
+// "Car" (its docs send a Camry that way and its vehicle catalogue returns "Car"
+// with body type "Sedan"). Sedans, wagons and hatchbacks therefore use "Car";
+// the exact website body type is repeated in the shipper comment.
 export const BEROCKER_VEHICLE_TYPES = {
-  sedan: 'sedan',
+  sedan: 'Car',
   suv: 'SUV',
   pickup: 'Pickup',
   van: 'Van',
@@ -64,13 +66,29 @@ export interface QuoteCrmProvider {
 function clean(value: string | undefined, multiline = false): string {
   const cleaned =
     value?.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '') ?? '';
-  return (multiline ? cleaned : cleaned.replace(/[\r\n]+/g, ' ')).trim();
+  return (multiline ? cleaned : cleaned.replace(/\s+/g, ' ')).trim();
 }
 
-// The schema already stores E.164; this guards older saved quotes too.
+// The record keeps E.164 (older quotes may hold the form's display format).
+// BeRocker accepts any common US format, but its examples and saved leads use
+// 10 digits, so the lead carries exactly that.
 function usPhone(phone: string | undefined): string | null {
   const digits = phone?.replace(/\D/g, '') ?? '';
-  return /^1\d{10}$/.test(digits) ? `+${digits}` : null;
+  const national =
+    digits.length === 11 && digits.startsWith('1') ? digits.slice(1) : digits;
+  return /^[2-9]\d{2}[2-9]\d{6}$/.test(national) ? national : null;
+}
+
+function vehicle(quote: QuotePayload): BeRockerVehicle {
+  const vin = clean(quote.vin);
+  return {
+    vehicle_model_year: Number(quote.vehicleYear),
+    vehicle_make: clean(quote.vehicleMake),
+    vehicle_model: clean(quote.vehicleModel),
+    vehicle_type: BEROCKER_VEHICLE_TYPES[quote.bodyType],
+    vehicle_inop: quote.vehicleCondition === 'inoperable',
+    ...(vin ? { vin } : {}),
+  };
 }
 
 export function buildBeRockerLead(
@@ -82,12 +100,11 @@ export function buildBeRockerLead(
   // that change may lack it and then skips the CRM step.
   const phone = usPhone(quote.phone);
   if (!phone) return null;
-  const vin = clean(quote.vin);
   return {
     first_name: clean(quote.firstName),
     last_name: clean(quote.lastName),
     phone,
-    email: quote.email,
+    email: quote.email.trim().toLowerCase(),
     origin_postal_code: quote.pickupZip,
     destination_postal_code: quote.deliveryZip,
     ship_date: quote.readyDate,
@@ -98,20 +115,12 @@ export function buildBeRockerLead(
       `Consent recorded at (UTC, server receipt): ${receivedAt}`,
       `Source: bladehaul.com quote form (${quote.source ?? 'main-form'})`,
       `Website request ID: ${quoteId}`,
+      `Website body type: ${quote.bodyType}`,
       '',
       'Customer notes:',
       clean(quote.additionalDetails, true) || 'None',
     ].join('\n'),
     secondary_id: quoteId,
-    vehicles: [
-      {
-        vehicle_model_year: Number(quote.vehicleYear),
-        vehicle_make: clean(quote.vehicleMake),
-        vehicle_model: clean(quote.vehicleModel),
-        vehicle_type: BEROCKER_VEHICLE_TYPES[quote.bodyType],
-        vehicle_inop: quote.vehicleCondition === 'inoperable',
-        ...(vin ? { vin } : {}),
-      },
-    ],
+    vehicles: [vehicle(quote)],
   };
 }
