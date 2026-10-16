@@ -122,8 +122,13 @@ export default function PrivacyPage() {
                   <strong>Our service providers.</strong> Vercel hosts the site
                   and stores a private delivery backup of submitted requests.
                   Resend delivers request notifications to our business email,
-                  which is hosted by Google Workspace. These providers process
-                  the information needed to perform those services.
+                  which is hosted by Google Workspace. BeRocker, our customer
+                  relationship management (CRM) service provider, receives and
+                  stores your quote request, including your contact details,
+                  route, vehicle, preferred pickup date, notes, and consent
+                  record, so our team can manage and answer your request. These
+                  providers process the information needed to perform those
+                  services.
                 </li>
                 <li>
                   <strong>Carriers for an accepted transport order.</strong> We
