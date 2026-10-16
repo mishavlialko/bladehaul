@@ -40,6 +40,7 @@ export async function admitQuote(
     store: QuoteStore;
     namespace: string;
     notification: { from: string; recipient: string };
+    crmEnabled?: boolean;
     verifyBrowser: () => Promise<{ isBot: boolean; bypassed?: boolean }>;
     verificationTimeoutMs?: number;
     now?: () => number;
@@ -84,6 +85,10 @@ export async function admitQuote(
         retryAfterSeconds: allowance.retryAfterSeconds,
       }
     );
-  // Mail credentials/capacity are deliberately absent from this boundary.
-  return enqueueQuote(store, namespace, quoteId, quote, notification, now);
+  // Mail and CRM credentials/capacity are deliberately absent from this
+  // boundary. Only the BeRocker on/off flag is fixed here, so a later CRM
+  // outage or missing URL leaves a durable pending step instead of no step.
+  return enqueueQuote(store, namespace, quoteId, quote, notification, now, {
+    crmEnabled: context.crmEnabled,
+  });
 }

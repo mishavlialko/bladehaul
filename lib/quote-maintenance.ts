@@ -1,6 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { processQuote, quoteIsDue } from '@/lib/quote-outbox';
+import {
+  crmIsDue,
+  processQuote,
+  processQuoteCrm,
+  quoteIsDue,
+} from '@/lib/quote-outbox';
 import type { OutboxContext, QuoteRecord } from '@/lib/quote-outbox';
+import type { QuoteCrmProvider } from '@/lib/quote-crm';
 
 export type MaintenanceState = {
   version: 1;
@@ -21,6 +27,8 @@ export type MaintenanceState = {
     deleted: number;
     errors: number;
     deliveryUnavailable: boolean;
+    // A saved CRM step is waiting while BeRocker is disabled or misconfigured.
+    crmUnavailable?: boolean;
     manualReviewIds: string[];
     pendingInBatch: number;
     oldestPendingAt?: string;
@@ -45,13 +53,15 @@ export function maintenanceIsHealthy(
     !state.attentionOutstanding &&
     state.lastBatch &&
     !state.lastBatch.errors &&
-    !state.lastBatch.deliveryUnavailable,
+    !state.lastBatch.deliveryUnavailable &&
+    !state.lastBatch.crmUnavailable,
   );
 }
 
 export async function runQuoteMaintenance(
   context: Omit<OutboxContext, 'provider'> & {
     provider?: OutboxContext['provider'];
+    crm?: QuoteCrmProvider;
   },
 ) {
   const { store, namespace } = context;
@@ -79,6 +89,7 @@ export async function runQuoteMaintenance(
     deleted: 0,
     errors: 0,
     deliveryUnavailable: !context.provider,
+    crmUnavailable: false,
     manualReviewIds: [],
     pendingInBatch: 0,
   };
@@ -119,14 +130,30 @@ export async function runQuoteMaintenance(
             )
               batch.processed += 1;
           }
+          // Email processing never changes the CRM section read above.
+          if (context.crm && crmIsDue(record, clock())) {
+            if (
+              (await processQuoteCrm(
+                { ...context, crm: context.crm },
+                record.quoteId,
+              )) === 'updated'
+            )
+              batch.processed += 1;
+          }
           const latest = await store.read<QuoteRecord>(recordPath);
           if (!latest) continue;
-          if (latest.value.delivery.state === 'manual_review')
-            batch.manualReviewIds.push(latest.value.quoteId);
+          const { delivery, crm } = latest.value;
           if (
-            ['pending', 'sending', 'accepted'].includes(
-              latest.value.delivery.state,
-            )
+            delivery.state === 'manual_review' ||
+            crm?.state === 'manual_review'
+          )
+            batch.manualReviewIds.push(latest.value.quoteId);
+          const crmPending =
+            crm?.state === 'pending' || crm?.state === 'sending';
+          if (crmPending && !context.crm) batch.crmUnavailable = true;
+          if (
+            ['pending', 'sending', 'accepted'].includes(delivery.state) ||
+            crmPending
           ) {
             batch.pendingInBatch += 1;
             if (
@@ -157,6 +184,7 @@ export async function runQuoteMaintenance(
   const batchAttention =
     batch.errors > 0 ||
     batch.deliveryUnavailable ||
+    batch.crmUnavailable ||
     batch.manualReviewIds.length > 0 ||
     Boolean(
       batch.oldestPendingAt &&

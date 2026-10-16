@@ -38,6 +38,33 @@ export function getQuoteEmailConfig(env: Environment = process.env) {
   return { ...getQuoteNotificationConfig(env), apiKey };
 }
 
+// BeRocker lead creation is off unless explicitly enabled. The lead save URL
+// embeds the lead-source key: a server-only credential, never NEXT_PUBLIC_,
+// never logged, and never echoed in errors.
+export function quoteCrmEnabled(env: Environment = process.env) {
+  return env.BEROCKER_ENABLED === 'true';
+}
+
+export function getQuoteCrmConfig(env: Environment = process.env) {
+  if (!quoteCrmEnabled(env)) return null;
+  const configured = env.BEROCKER_LEAD_SAVE_URL?.trim();
+  if (!configured) throw new Error('quote_crm_url_missing');
+  let url: URL;
+  try {
+    url = new URL(configured);
+  } catch {
+    throw new Error('quote_crm_url_invalid');
+  }
+  if (
+    url.protocol !== 'https:' ||
+    url.username ||
+    url.password ||
+    !url.pathname.endsWith('/save')
+  )
+    throw new Error('quote_crm_url_invalid');
+  return { leadSaveUrl: url.href };
+}
+
 export function quoteAllowedOrigins(
   requestUrl: string,
   env: Environment = process.env,

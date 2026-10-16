@@ -1,5 +1,11 @@
 import { createHash, randomUUID } from 'node:crypto';
 import type { QuoteInput } from './validation';
+import {
+  buildBeRockerLead,
+  type CrmResult,
+  type QuoteCrmDelivery,
+  type QuoteCrmProvider,
+} from '@/lib/quote-crm';
 
 export const QUOTE_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
 export const RETRY_WINDOW_MS = 23 * 60 * 60 * 1_000;
@@ -40,6 +46,9 @@ export type QuoteRecord = {
     lastCheckedAt?: string;
     attentionReason?: string;
   };
+  // Present only when BeRocker was enabled at acceptance. An independent step:
+  // email and CRM outcomes never block or retry each other.
+  crm?: QuoteCrmDelivery;
 };
 
 export type Versioned<T> = { value: T; etag: string };
@@ -73,6 +82,10 @@ export type OutboxContext = {
   provider: QuoteEmailProvider;
   namespace: string;
   now?: () => number;
+};
+
+export type CrmOutboxContext = Omit<OutboxContext, 'provider'> & {
+  crm: QuoteCrmProvider;
 };
 
 function stableJson(value: unknown): string {
@@ -149,6 +162,22 @@ export function buildQuoteEmail(
   };
 }
 
+function crmDelivery(
+  quote: QuotePayload,
+  quoteId: string,
+  receivedAt: string,
+): QuoteCrmDelivery {
+  const lead = buildBeRockerLead(quote, quoteId, receivedAt);
+  return lead
+    ? { state: 'pending', lead, attempts: 0, nextAttemptAt: receivedAt }
+    : {
+        state: 'skipped',
+        attempts: 0,
+        nextAttemptAt: null,
+        attentionReason: 'crm_phone_missing',
+      };
+}
+
 export async function enqueueQuote(
   store: QuoteStore,
   namespace: string,
@@ -156,6 +185,7 @@ export async function enqueueQuote(
   quote: QuotePayload,
   emailSettings: { from: string; recipient: string },
   now = Date.now(),
+  options: { crmEnabled?: boolean } = {},
 ): Promise<{ kind: 'accepted' | 'duplicate' | 'conflict'; quoteId: string }> {
   const path = quotePath(namespace, quoteId);
   const payloadHash = hashQuote(quote);
@@ -176,6 +206,9 @@ export async function enqueueQuote(
     ),
     idempotencyKey: `bladehaul-quote/${namespace}/${quoteId}`,
     delivery: { state: 'pending', attempts: 0, nextAttemptAt: receivedAt },
+    ...(options.crmEnabled
+      ? { crm: crmDelivery(quote, quoteId, receivedAt) }
+      : {}),
   };
 
   if (await store.write(path, record, null))
@@ -246,8 +279,9 @@ export async function processQuote(
       : 'conflict';
   }
 
+  const owner = randomUUID();
   delivery.lease = {
-    owner: randomUUID(),
+    owner,
     until: new Date(now + DELIVERY_LEASE_MS).toISOString(),
   };
   delivery.firstAttemptAt ??= new Date(now).toISOString();
@@ -317,5 +351,109 @@ export async function processQuote(
 
   // A failed save leaves the old lease. Recovery reuses the same immutable
   // message/key; it never sends again once a provider ID is durably recorded.
-  return (await store.write(path, record, leasedEtag)) ? 'updated' : 'conflict';
+  return saveStep(store, path, record, leasedEtag, 'delivery', owner);
+}
+
+// Email and CRM steps share one record. If the other step saved meanwhile,
+// re-apply only this step's section while this worker still holds its lease.
+async function saveStep(
+  store: QuoteStore,
+  path: string,
+  record: QuoteRecord,
+  etag: string,
+  step: 'delivery' | 'crm',
+  owner: string,
+): Promise<'updated' | 'conflict'> {
+  let next = record;
+  let expected = etag;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    if (await store.write(path, next, expected)) return 'updated';
+    const latest = await store.read<QuoteRecord>(path);
+    if (!latest || latest.value[step]?.lease?.owner !== owner)
+      return 'conflict';
+    next = structuredClone(latest.value);
+    if (step === 'crm') next.crm = record.crm;
+    else next.delivery = record.delivery;
+    expected = latest.etag;
+  }
+  return 'conflict';
+}
+
+export function crmIsDue(record: QuoteRecord, now: number): boolean {
+  const crm = record.crm;
+  if (!crm || (crm.state !== 'pending' && crm.state !== 'sending'))
+    return false;
+  if (crm.lease && Date.parse(crm.lease.until) > now) return false;
+  return crm.nextAttemptAt !== null && Date.parse(crm.nextAttemptAt) <= now;
+}
+
+export async function processQuoteCrm(
+  context: CrmOutboxContext,
+  quoteId: string,
+): Promise<'skipped' | 'updated' | 'conflict'> {
+  const { store, crm: provider, namespace } = context;
+  const clock = context.now ?? Date.now;
+  const now = clock();
+  const path = quotePath(namespace, quoteId);
+  const current = await store.read<QuoteRecord>(path);
+  if (!current || !crmIsDue(current.value, now)) return 'skipped';
+
+  const record = structuredClone(current.value);
+  const crm = record.crm!;
+  if (Date.parse(record.expiresAt) <= now) return 'skipped';
+  const lead = crm.lead;
+  if (
+    !lead ||
+    (crm.firstAttemptAt &&
+      now >= Date.parse(crm.firstAttemptAt) + RETRY_WINDOW_MS)
+  ) {
+    crm.state = 'manual_review';
+    crm.attentionReason = lead ? 'retry_window_expired' : 'crm_lead_missing';
+    crm.nextAttemptAt = null;
+    delete crm.lease;
+    return (await store.write(path, record, current.etag))
+      ? 'updated'
+      : 'conflict';
+  }
+
+  const owner = randomUUID();
+  crm.lease = {
+    owner,
+    until: new Date(now + DELIVERY_LEASE_MS).toISOString(),
+  };
+  crm.firstAttemptAt ??= new Date(now).toISOString();
+  crm.state = 'sending';
+  crm.attempts += 1;
+  crm.lastAttemptAt = new Date(now).toISOString();
+  const leasedEtag = await store.write(path, record, current.etag);
+  if (!leasedEtag) return 'conflict';
+
+  // BeRocker documents no idempotency key; an identical submission within 30
+  // minutes returns the existing lead. The lease is saved first, the saved body
+  // is resent unchanged, and a recorded creation is never sent again.
+  let result: CrmResult;
+  try {
+    result = await provider.createLead(lead);
+  } catch {
+    result = { kind: 'temporary', code: 'crm_provider_unavailable' };
+  }
+
+  const finishedAt = clock();
+  delete crm.lease;
+  if (result.kind === 'created') {
+    crm.state = 'created';
+    crm.createdAt = new Date(finishedAt).toISOString();
+    crm.nextAttemptAt = null;
+    if (result.leadId) crm.leadId = result.leadId;
+    if (result.bookingLink) crm.bookingLink = result.bookingLink;
+    delete crm.attentionReason;
+  } else {
+    crm.attentionReason = result.code;
+    crm.nextAttemptAt =
+      result.kind === 'temporary'
+        ? nextRetryAt(crm.firstAttemptAt, finishedAt)
+        : null;
+    crm.state = crm.nextAttemptAt ? 'pending' : 'manual_review';
+  }
+  return saveStep(store, path, record, leasedEtag, 'crm', owner);
 }

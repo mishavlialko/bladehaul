@@ -3,16 +3,18 @@ import { checkBotId } from 'botid/server';
 import { quoteSchema } from '@/lib/validation';
 import { createQuoteBlobStore } from '@/lib/quote-blob-store';
 import {
+  getQuoteCrmConfig,
   getQuoteEmailConfig,
   getQuoteNotificationConfig,
   getQuoteStorageConfig,
   quoteAllowedOrigins,
+  quoteCrmEnabled,
 } from '@/lib/quote-config';
-import { processQuote } from '@/lib/quote-outbox';
+import { processQuote, processQuoteCrm } from '@/lib/quote-outbox';
 import { admitQuote } from '@/lib/quote-intake';
 import { getQuoteSendBudgetLimits } from '@/lib/quote-budget';
 import { hasTrustedOrigin, readQuoteBody } from '@/lib/quote-request';
-import { createResendProvider } from './delivery';
+import { createBeRockerProvider, createResendProvider } from './delivery';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -90,6 +92,7 @@ export async function POST(req: Request) {
         store,
         namespace,
         notification,
+        crmEnabled: quoteCrmEnabled(),
         verifyBrowser: () =>
           checkBotId({
             advancedOptions: { checkLevel: 'basic' },
@@ -148,6 +151,23 @@ export async function POST(req: Request) {
       } catch {
         // The accepted request is already durable; cron will recover it.
         console.error('[quote] background_delivery_unavailable', {
+          quoteId: requestId,
+        });
+      }
+      try {
+        const crm = getQuoteCrmConfig();
+        if (crm)
+          await processQuoteCrm(
+            {
+              store,
+              namespace,
+              crm: createBeRockerProvider(crm.leadSaveUrl),
+            },
+            requestId,
+          );
+      } catch {
+        // The CRM step stays pending in the record; cron will recover it.
+        console.error('[quote] background_crm_unavailable', {
           quoteId: requestId,
         });
       }

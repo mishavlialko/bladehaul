@@ -17,6 +17,8 @@ type Scenario = {
   httpCalls: Array<{ url: string; options?: RequestInit }>;
   logs: unknown[][];
 };
+const LEAD_URL =
+  'https://crm.example.test/api/v1/auto-logistics/client/webhooks/lead/synthetic-route-key/save';
 const scenarioKey = Symbol.for('bladehaul.synthetic.quote-route-test');
 const globals = globalThis as unknown as Record<symbol, Scenario>;
 const stub = (source: string) =>
@@ -91,6 +93,8 @@ const environment = {
   QUOTE_EMAIL_HOURLY_LIMIT: '100',
   QUOTE_EMAIL_DAILY_LIMIT: '100',
   QUOTE_EMAIL_MONTHLY_LIMIT: '2000',
+  BEROCKER_ENABLED: 'false',
+  BEROCKER_LEAD_SAVE_URL: '',
 };
 
 test.beforeEach((t) => {
@@ -140,6 +144,8 @@ test.beforeEach((t) => {
     'fetch',
     async (url: string | URL | Request, options?: RequestInit) => {
       state.httpCalls.push({ url: String(url), options });
+      if (String(url) === LEAD_URL)
+        return Response.json({ id: 'synthetic-lead-1', bookingLink: null });
       assert.equal(String(url), 'https://api.resend.com/emails');
       return Response.json({ id: 'synthetic-email-1' });
     },
@@ -203,6 +209,53 @@ test('actual POST returns the exact durable receipt before a single immutable no
     JSON.stringify(frozen?.email),
   );
   assert.equal((await saved())?.value.delivery.state, 'accepted');
+});
+
+test('actual POST with BeRocker enabled notifies and creates the CRM lead once in the background', async () => {
+  process.env.BEROCKER_ENABLED = 'true';
+  process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL;
+  const body = { ...payload(), phone: '+1 (555) 123-4567', consentTcpa: true };
+  const response = await POST(request(body));
+  assert.equal(response.status, 202);
+  assert.deepEqual(await response.json(), { success: true, quoteId: QUOTE_ID });
+  assert.equal(state().httpCalls.length, 0);
+  assert.equal((await saved())?.value.crm?.state, 'pending');
+  await background();
+  assert.deepEqual(
+    state().httpCalls.map((call) => call.url),
+    ['https://api.resend.com/emails', LEAD_URL],
+  );
+  const lead = JSON.parse(String(state().httpCalls[1].options?.body));
+  assert.equal(lead.secondary_id, QUOTE_ID);
+  assert.equal(lead.phone, '+15551234567');
+  const record = (await saved())?.value;
+  assert.equal(record?.delivery.state, 'accepted');
+  assert.equal(record?.crm?.state, 'created');
+  assert.equal(record?.crm?.leadId, 'synthetic-lead-1');
+  assert.equal(record?.crm?.bookingLink, undefined);
+  assert.equal((await POST(request(body))).status, 202);
+  await background();
+  assert.equal(state().httpCalls.length, 2);
+  assert.deepEqual(state().logs, []);
+});
+
+test('actual POST with a misconfigured BeRocker URL keeps the CRM step and logs only the request ID', async () => {
+  process.env.BEROCKER_ENABLED = 'true';
+  process.env.BEROCKER_LEAD_SAVE_URL = LEAD_URL.replace('https:', 'http:');
+  const body = { ...payload(), phone: '+1 (555) 123-4567' };
+  assert.equal((await POST(request(body))).status, 202);
+  await background();
+  assert.deepEqual(
+    state().httpCalls.map((call) => call.url),
+    ['https://api.resend.com/emails'],
+  );
+  assert.equal((await saved())?.value.crm?.state, 'pending');
+  assert.deepEqual(state().logs, [
+    ['[quote] background_crm_unavailable', { quoteId: QUOTE_ID }],
+  ]);
+  const logged = JSON.stringify(state().logs);
+  for (const secret of ['synthetic-route-key', '555', QUOTE.email])
+    assert.equal(logged.includes(secret), false);
 });
 
 test('actual POST saves and acknowledges when the Resend key is missing', async () => {

@@ -1,11 +1,13 @@
 import type { QuoteEmailProvider } from '@/lib/quote-outbox';
 import type { QuoteStore } from '@/lib/quote-outbox';
+import type { CrmResult, QuoteCrmProvider } from '@/lib/quote-crm';
 import { reserveQuoteBudget, type BudgetLimits } from '@/lib/quote-budget';
 
 export const DELIVERY_TIMEOUT_MS = 10_000;
 export const SEND_RESERVATION_TIMEOUT_MS = 6_000;
 const API_ORIGIN = 'https://api.resend.com';
 const EMAIL_ID = /^[a-zA-Z0-9_-]{1,100}$/;
+const LEAD_ID = /^[a-zA-Z0-9_-]{1,100}$/;
 const EVENTS = new Set([
   'queued',
   'scheduled',
@@ -147,6 +149,84 @@ export function createResendProvider(
       } catch {
         return { kind: 'temporary', code: 'resend_unavailable' };
       }
+    },
+  };
+}
+
+function crmFailure(status: number) {
+  return {
+    // 422 field errors and 403 key/source rejections need a person.
+    kind:
+      status >= 500 || status === 408 || status === 429
+        ? ('temporary' as const)
+        : ('permanent' as const),
+    // Never copy BeRocker error text (it can echo PII) or the key-bearing URL.
+    code: `berocker_http_${status}`,
+  };
+}
+
+function leadReceipt(result: unknown) {
+  const receipt: { leadId?: string; bookingLink?: string } = {};
+  if (!result || typeof result !== 'object') return receipt;
+  if ('id' in result) {
+    if (typeof result.id === 'string' && LEAD_ID.test(result.id))
+      receipt.leadId = result.id;
+    else if (
+      typeof result.id === 'number' &&
+      Number.isSafeInteger(result.id) &&
+      result.id > 0
+    )
+      receipt.leadId = String(result.id);
+  }
+  if (
+    'bookingLink' in result &&
+    typeof result.bookingLink === 'string' &&
+    result.bookingLink.length <= 2_048
+  ) {
+    try {
+      if (new URL(result.bookingLink).protocol === 'https:')
+        receipt.bookingLink = result.bookingLink;
+    } catch {
+      // An unusable link is dropped; the lead itself was still created.
+    }
+  }
+  return receipt;
+}
+
+export function createBeRockerProvider(
+  leadSaveUrl: string,
+  request: typeof fetch = fetch,
+  timeoutMs = DELIVERY_TIMEOUT_MS,
+): QuoteCrmProvider {
+  return {
+    async createLead(lead): Promise<CrmResult> {
+      let response: Response;
+      try {
+        response = await request(leadSaveUrl, {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(lead),
+          signal: AbortSignal.timeout(timeoutMs),
+          cache: 'no-store',
+          redirect: 'error',
+        });
+      } catch {
+        // Network errors can quote the URL, so only a fixed code survives.
+        return { kind: 'temporary', code: 'berocker_unavailable' };
+      }
+      if (!response.ok) return crmFailure(response.status);
+      // A 2xx means BeRocker saved the lead. An unreadable receipt must not
+      // trigger a resend that could duplicate it after the 30-minute window.
+      let receipt: unknown = null;
+      try {
+        receipt = await response.json();
+      } catch {
+        // Keep the created state without a receipt.
+      }
+      return { kind: 'created', ...leadReceipt(receipt) };
     },
   };
 }
